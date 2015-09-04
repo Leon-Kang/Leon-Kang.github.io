@@ -1,0 +1,12 @@
+# Site settings
+title: My Blog.
+email: 376450758@qq.com
+relative_permalinks: false
+
+
+
+
+# Build settings
+markdown: kramdown
+url: "http://Leon-Kang.github.io"
+output: true
