@@ -1,13 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>My Blog.</title>
-    <description></description>
+    <title>What a wonderful world .</title>
+    <description>We must be strong on the way of growth .</description>
     <link>http://Leon-Kang.github.io/</link>
     <atom:link href="http://Leon-Kang.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Fri, 04 Sep 2015 23:26:08 +0800</pubDate>
-    <lastBuildDate>Fri, 04 Sep 2015 23:26:08 +0800</lastBuildDate>
+    <pubDate>Mon, 07 Sep 2015 21:17:41 +0800</pubDate>
+    <lastBuildDate>Mon, 07 Sep 2015 21:17:41 +0800</lastBuildDate>
     <generator>Jekyll v2.5.3</generator>
+    
+      <item>
+        <title>进展-1</title>
+        <description>&lt;p&gt;开始学习界面搭建和基本控件运用已经有几天了，学的东西不少。但是我觉得自己接受程度不高，自学的效率也比较低下。只是可以根据视频的讲解去实现一些简单的功能代码，还有自己去寻找一些需要的素材来添加，处理一些简单地bug。
+任重而道远啊！！！先做一个操作员，然后是独立工程师，然后不断地提高自己吧。&lt;/p&gt;
+</description>
+        <pubDate>Mon, 07 Sep 2015 00:00:00 +0800</pubDate>
+        <link>http://Leon-Kang.github.io/first/2015/09/07/update1.html</link>
+        <guid isPermaLink="true">http://Leon-Kang.github.io/first/2015/09/07/update1.html</guid>
+        
+        
+        <category>first</category>
+        
+      </item>
     
       <item>
         <title>此致 敬礼!</title>
