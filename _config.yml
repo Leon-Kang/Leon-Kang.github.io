@@ -12,6 +12,3 @@ markdown: kramdown
 url: "http://Leon-Kang.github.io"
 output: true
 
-markdown: redcarpet
-redcarpet:
-extensions: ["fenced_code_blocks", "autolink", "tables", "strikethrough"]
