@@ -19,7 +19,7 @@ categories: first
 
 * 创建一个UIAlertController对象：
 
-```oc
+```objectivec
 	UIAlertController *alertOne = [UIAlertController alertControllerWithTitle:@"I'm alertOne" message:@"I want to tell you something" preferredStyle:UIAlertControllerStyleAlert]; 
 ```
 
@@ -30,7 +30,7 @@ categories: first
 * 让我们来为它添加一个『取消』按钮和一个『确定』按钮，让它看起来正常一些。
 
 
-```oc
+```objectivec
     UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];         
     [alertOne addAction:cancel];    
     UIAlertAction *certain = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];    
@@ -44,7 +44,7 @@ categories: first
 * 接着我们继续在AlertController上插入一个textField控件，实现输入监听。
 
 
-```oc
+```objectivec
 	 [alertOne addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
 	 // 监听
       [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleTextFieldTextDidChangeNotification:) name:UITextFieldTextDidChangeNotification object:textField];
@@ -56,7 +56,7 @@ categories: first
     
    * 这一段是在其自带的block代码块中利用NSNotificationCenter来实现值的传输。如果输入有变动的话就会传出变化的值。当然也可以根据需要写在按钮的方法block块中，以实现点击『取消』或『确定』按钮时实现相应的功能。然后我们继续完成handleTextFieldTextDidChangeNotification:方法：
     
-```oc
+```objectivec
 - (void)handleTextFieldTextDidChangeNotification:(NSNotification *)notification
 {
     UITextField *textField = notification.object;
@@ -70,7 +70,7 @@ categories: first
 ### 二、从下方弹出式UIAlertController(原UIActionSheet)
 * 上边我们使用的是基于UIAlertControllerStyleAlert风格的，下边来尝试一下另一种风格UIAlertControllerStyleActionSheet的使用方法。
 
-```oc
+```objectivec
     NSString *title = NSLocalizedString(@"AlertTwo", nil);
     UIAlertController *alertTwo = [UIAlertController alertControllerWithTitle:title message:nil preferredStyle:UIAlertControllerStyleActionSheet];
 ```
@@ -79,7 +79,7 @@ categories: first
 * 这是最原始的形态，还是一样的丑，而且一样无法返回，添加按钮方法同上，但是这次我们把一个换成Destructive风格来看一下效果。
 
 
-```oc
+```objectivec
     UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
     [alertTwo addAction:cancel];    
     UIAlertAction *certain = [UIAlertAction actionWithTitle:@"清空" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
