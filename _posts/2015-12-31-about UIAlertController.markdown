@@ -21,7 +21,7 @@ categories: first
 
 
 {% highlight ruby linenos %}
-	UIAlertController *alertOne = [UIAlertController alertControllerWithTitle:@"I'm alertOne" message:@"I want to tell you something" preferredStyle:UIAlertControllerStyleAlert]; 
+UIAlertController *alertOne = [UIAlertController alertControllerWithTitle:@"I'm alertOne" message:@"I want to tell you something" preferredStyle:UIAlertControllerStyleAlert]; 
 {% endhighlight %}
 
 * 这一段代码初始化了一个最基本名字叫alertOne；Title为『I'm alertOne』；显示内容为『I want to tell you something』；而Style设为UIAlertControllerStyleAlert（最常见的弹出式alert。一共有两种，还有一种从下弹出式，稍后讲解）的UIAlertController对象。效果如下，因为没有添加AlertAction所以看起来很丑。
@@ -32,10 +32,10 @@ categories: first
 
 
 {% highlight ruby linenos %}
-    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];         
-    [alertOne addAction:cancel];    
-    UIAlertAction *certain = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];    
-    [alertOne addAction:certain];
+UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];         
+[alertOne addAction:cancel];    
+UIAlertAction *certain = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];    
+[alertOne addAction:certain];
 {% endhighlight %}
     
 * 初始化方法中Title对应着显示出来按钮的名称；style对于的是按钮的类型，有三种类型，这里用到了Cancel和Default，取消和默认的样式；还有一种是Destructive (销毁)样式，我们稍后添加。这样，我们就给他安上了两个按钮，就实现最基本也是最常见的alert样式。来看一下效果：
@@ -46,8 +46,8 @@ categories: first
 
 
 {% highlight ruby linenos %}
-	 [alertOne addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
-	 // 监听
+[alertOne addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+      // 监听
       [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleTextFieldTextDidChangeNotification:) name:UITextFieldTextDidChangeNotification object:textField];
       // 定制键盘和输入框背景文字及clearButton
       textField.placeholder = @"请输入";
@@ -74,8 +74,8 @@ categories: first
 
 
 {% highlight ruby linenos %}
-    NSString *title = NSLocalizedString(@"AlertTwo", nil);
-    UIAlertController *alertTwo = [UIAlertController alertControllerWithTitle:title message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+NSString *title = NSLocalizedString(@"AlertTwo", nil);
+UIAlertController *alertTwo = [UIAlertController alertControllerWithTitle:title message:nil preferredStyle:UIAlertControllerStyleActionSheet];
 {% endhighlight %}
 
 ![](http://7xpo5x.com1.z0.glb.clouddn.com/UIAlertController-04.png)
@@ -84,12 +84,12 @@ categories: first
 
 
 {% highlight ruby linenos %}
-    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
-    [alertTwo addAction:cancel];    
-    UIAlertAction *certain = [UIAlertAction actionWithTitle:@"清空" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
+[alertTwo addAction:cancel];    
+UIAlertAction *certain = [UIAlertAction actionWithTitle:@"清空" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
         self.textLabel.text = nil;
     }];
-    [alertTwo addAction:certain];
+[alertTwo addAction:certain];
 {% endhighlight %}
 
 ![](http://7xpo5x.com1.z0.glb.clouddn.com/UIAlertController-06.png)
