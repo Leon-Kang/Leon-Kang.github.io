@@ -11,4 +11,4 @@ github_username: Leon-Kang
 markdown: kramdown
 url: "http://Leon-Kang.github.io"
 output: true
-
+pygments: true
