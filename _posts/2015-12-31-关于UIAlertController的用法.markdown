@@ -22,8 +22,9 @@ tag: iOS
 * 创建一个UIAlertController对象：
 
 
-{% highlight ruby linenos %}
+{% highlight Objective-C linenos %}
 UIAlertController *alertOne = [UIAlertController alertControllerWithTitle:@"I'm alertOne" message:@"I want to tell you something" preferredStyle:UIAlertControllerStyleAlert]; 
+[self presentViewController:alertOne animated:YES completion:nil];
 {% endhighlight %}
 
 * 这一段代码初始化了一个最基本名字叫alertOne；Title为『I'm alertOne』；显示内容为『I want to tell you something』；而Style设为UIAlertControllerStyleAlert（最常见的弹出式alert。一共有两种，还有一种从下弹出式，稍后讲解）的UIAlertController对象。效果如下，因为没有添加AlertAction所以看起来很丑。
@@ -33,7 +34,7 @@ UIAlertController *alertOne = [UIAlertController alertControllerWithTitle:@"I'm 
 * 让我们来为它添加一个『取消』按钮和一个『确定』按钮，让它看起来正常一些。
 
 
-{% highlight ruby linenos %}
+{% highlight Objective-C linenos %}
 UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];         
 [alertOne addAction:cancel];    
 UIAlertAction *certain = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];    
@@ -47,7 +48,7 @@ UIAlertAction *certain = [UIAlertAction actionWithTitle:@"确定" style:UIAlertA
 * 接着我们继续在AlertController上插入一个textField控件，实现输入监听。
 
 
-{% highlight ruby linenos %}
+{% highlight Objective-C linenos %}
 [alertOne addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
       // 监听
       [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleTextFieldTextDidChangeNotification:) name:UITextFieldTextDidChangeNotification object:textField];
@@ -55,11 +56,12 @@ UIAlertAction *certain = [UIAlertAction actionWithTitle:@"确定" style:UIAlertA
       textField.placeholder = @"请输入";
       textField.clearButtonMode = UITextFieldViewModeWhileEditing;
     }];
+}
 {% endhighlight %}
     
    * 这一段是在其自带的block代码块中利用NSNotificationCenter来实现值的传输。如果输入有变动的话就会传出变化的值。当然也可以根据需要写在按钮的方法block块中，以实现点击『取消』或『确定』按钮时实现相应的功能。然后我们继续完成handleTextFieldTextDidChangeNotification:方法：
     
-{% highlight ruby linenos %}
+{% highlight Objective-C linenos %}
 - (void)handleTextFieldTextDidChangeNotification:(NSNotification *)notification
 {
     UITextField *textField = notification.object;
@@ -75,7 +77,7 @@ UIAlertAction *certain = [UIAlertAction actionWithTitle:@"确定" style:UIAlertA
 
 
 
-{% highlight ruby linenos %}
+{% highlight Objective-C linenos %}
 NSString *title = NSLocalizedString(@"AlertTwo", nil);
 UIAlertController *alertTwo = [UIAlertController alertControllerWithTitle:title message:nil preferredStyle:UIAlertControllerStyleActionSheet];
 {% endhighlight %}
@@ -85,7 +87,7 @@ UIAlertController *alertTwo = [UIAlertController alertControllerWithTitle:title 
 * 这是最原始的形态，还是一样的丑，而且一样无法返回，添加按钮方法同上，但是这次我们把一个换成Destructive风格来看一下效果。
 
 
-{% highlight ruby linenos %}
+{% highlight Objective-C linenos %}
 UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
 [alertTwo addAction:cancel];    
 UIAlertAction *certain = [UIAlertAction actionWithTitle:@"清空" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
@@ -107,7 +109,7 @@ UIAlertAction *certain = [UIAlertAction actionWithTitle:@"清空" style:UIAlertA
 
 ![](http://7xpo5x.com1.z0.glb.clouddn.com/UIAlertController-09.png)
 
-* UIAlertController用法比较简单，都是比较实用。如果想要实现更发杂的功能或者效果还需要自己去定制的。
+* UIAlertController用法比较简单，但是比较实用。如果想要实现更繁杂的功能或者效果还是需要自己去定制的。
 
  [需要源代码点我](https://github.com/Leon-Kang/studyA/tree/master/AboutUIAlertController)
 
