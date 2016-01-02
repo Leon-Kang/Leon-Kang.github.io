@@ -1,7 +1,7 @@
 ---
 layout: post
 author:Leon-Kang
-title: "进展-1"
+title: 进展-1
 date:   2015-09-07
 categories: diary
 tag: diary

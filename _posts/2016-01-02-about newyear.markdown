@@ -1,7 +1,7 @@
 ---
 layout: post
 author:Leon-Kang
-title: "解决github不统计贡献度"
+title: 解决github不统计贡献度
 date:   2016-01-02
 categories: iOS
 tag: iOS
