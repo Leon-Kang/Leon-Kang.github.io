@@ -1,14 +1,29 @@
-# Site settings
-title: What a wonderful world .
-email: 376450758@qq.com
-relative_permalinks: false
+# Dependencies
+markdown:         rdiscount
+highlighter:      pygments
 
-description: We must be strong on the way of growth .
+#
+encoding:         "utf-8"
+# Permalinks
+permalink:        pretty
 
-github_username: Leon-Kang
+# Setup
+title:            LK
+tagline:          'What a wonderful world'
+description:      'We must be strong on the way of growth.'
+url:              http://Leon-Kang.github.io
 
-# Build settings
-markdown: kramdown
-url: "http://Leon-Kang.github.io"
-output: true
-pygments: true
+author:
+  name:           'Leon-Kang'
+  url:            http://Leon-Kang.github.io
+
+paginate:         5
+
+# Custom vars
+version:          1.0.0
+
+# duoshuo
+comments :
+    provider : duoshuo
+    duoshuo :
+      short_name : Leon-Kang
