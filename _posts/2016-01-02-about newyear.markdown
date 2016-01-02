@@ -2,7 +2,7 @@
 layout: post
 title: "解决github不统计贡献度"
 date:   2016-01-02
-author: Leon-Kang
+author: LeonKang
 categories: iOS
 tag: iOS
 ---

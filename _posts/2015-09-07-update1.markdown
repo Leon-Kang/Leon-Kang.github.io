@@ -2,7 +2,7 @@
 layout: post
 title: "进展-1"
 date:   2015-09-07
-author: Leon-Kang
+author: LeonKang
 categories: diary
 tag: diary
 ---

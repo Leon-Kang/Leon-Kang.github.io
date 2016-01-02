@@ -2,7 +2,7 @@
 layout: post
 title:  "此致 敬礼!"
 date:   2015-09-04 18:01:24
-author: Leon-Kang
+author: LeonKang
 categories: diary
 tag: diary
 ---
