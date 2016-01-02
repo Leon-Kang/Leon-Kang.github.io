@@ -1,112 +1,26 @@
 ---
 layout: post
-title: "关于UIAlertController的用法"
-date:   2015-12-31
+title: "解决github不统计贡献度"
+date:   2016-01-02
 categories: first
 ---
 
+#####今天看自己的贡献度面板，白花花一片。一直有使用的github桌面版应用和Xcode提交应用。那么问题来了---为什么别人的都是绿油油一片，而我的就一次commit都没有统计到呢？
 
+看了一些资料，我感觉可能是我本地配置邮箱和用户名不匹配（后来改过一次user.name）但是没有更新本地配置。
 
-# 关于UIAlertController的用法
+然后照着[官方文档](https://help.github.com/articles/set-up-git/)重新配置了用户名和邮箱。
 
-##简介
+问·题·解·决·了······
 
-> 在新版本的Xcode中增加了UIAlertController而UIAlertView在调用时则会显示已经过期。本人在使用中经常会使用到Alert窗口，所以整理一下用法以方便自己使用。
+仅仅需要两条命令：
 
-## 基本语法
+`
+git config --global user.name "YOUR NAME"
+`
 
-### 一、基础控件的添加(原UIAlertView)
+`
+git config --global user.email "YOUR EMAIL ADDRESS"
+`
 
-* 创建一个UIAlertController对象：
-
-
-{% highlight ruby linenos %}
-UIAlertController *alertOne = [UIAlertController alertControllerWithTitle:@"I'm alertOne" message:@"I want to tell you something" preferredStyle:UIAlertControllerStyleAlert]; 
-{% endhighlight %}
-
-* 这一段代码初始化了一个最基本名字叫alertOne；Title为『I'm alertOne』；显示内容为『I want to tell you something』；而Style设为UIAlertControllerStyleAlert（最常见的弹出式alert。一共有两种，还有一种从下弹出式，稍后讲解）的UIAlertController对象。效果如下，因为没有添加AlertAction所以看起来很丑。
-
-![](http://7xpo5x.com1.z0.glb.clouddn.com/UIAlertController-01.png)
-
-* 让我们来为它添加一个『取消』按钮和一个『确定』按钮，让它看起来正常一些。
-
-
-{% highlight ruby linenos %}
-UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];         
-[alertOne addAction:cancel];    
-UIAlertAction *certain = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];    
-[alertOne addAction:certain];
-{% endhighlight %}
-    
-* 初始化方法中Title对应着显示出来按钮的名称；style对于的是按钮的类型，有三种类型，这里用到了Cancel和Default，取消和默认的样式；还有一种是Destructive (销毁)样式，我们稍后添加。这样，我们就给他安上了两个按钮，就实现最基本也是最常见的alert样式。来看一下效果：
-
-![](http://7xpo5x.com1.z0.glb.clouddn.com/UIAlertController-02.png)
-
-* 接着我们继续在AlertController上插入一个textField控件，实现输入监听。
-
-
-{% highlight ruby linenos %}
-[alertOne addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
-      // 监听
-      [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleTextFieldTextDidChangeNotification:) name:UITextFieldTextDidChangeNotification object:textField];
-      // 定制键盘和输入框背景文字及clearButton
-      textField.placeholder = @"请输入";
-      textField.clearButtonMode = UITextFieldViewModeWhileEditing;
-    }];
-{% endhighlight %}
-    
-   * 这一段是在其自带的block代码块中利用NSNotificationCenter来实现值的传输。如果输入有变动的话就会传出变化的值。当然也可以根据需要写在按钮的方法block块中，以实现点击『取消』或『确定』按钮时实现相应的功能。然后我们继续完成handleTextFieldTextDidChangeNotification:方法：
-    
-{% highlight ruby linenos %}
-- (void)handleTextFieldTextDidChangeNotification:(NSNotification *)notification
-{
-    UITextField *textField = notification.object;
-    self.textLabel.text = textField.text;
-}
-{% endhighlight %}
- 
-![](http://7xpo5x.com1.z0.glb.clouddn.com/UIAlertController-03.png) 
-
-
-### 二、从下方弹出式UIAlertController(原UIActionSheet)
-* 上边我们使用的是基于UIAlertControllerStyleAlert风格的，下边来尝试一下另一种风格UIAlertControllerStyleActionSheet的使用方法。
-
-
-
-{% highlight ruby linenos %}
-NSString *title = NSLocalizedString(@"AlertTwo", nil);
-UIAlertController *alertTwo = [UIAlertController alertControllerWithTitle:title message:nil preferredStyle:UIAlertControllerStyleActionSheet];
-{% endhighlight %}
-
-![](http://7xpo5x.com1.z0.glb.clouddn.com/UIAlertController-04.png)
-
-* 这是最原始的形态，还是一样的丑，而且一样无法返回，添加按钮方法同上，但是这次我们把一个换成Destructive风格来看一下效果。
-
-
-{% highlight ruby linenos %}
-UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
-[alertTwo addAction:cancel];    
-UIAlertAction *certain = [UIAlertAction actionWithTitle:@"清空" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
-        self.textLabel.text = nil;
-    }];
-[alertTwo addAction:certain];
-{% endhighlight %}
-
-![](http://7xpo5x.com1.z0.glb.clouddn.com/UIAlertController-06.png)
-
-* 再添加按钮以后，把alertTwo对象的Title设为nil，便可以把最上方的Title栏去掉，变成如下效果。
-
-![](http://7xpo5x.com1.z0.glb.clouddn.com/UIAlertController-07.png)
-
-
-* 这种风格的AlertController是不可以添加textField控件的。报错信息为『reason: 'Text fields can only be added to an alert controller of style UIAlertControllerStyleAlert'』,苹果官方很明确地表示了不可以。
-
-* UIAlertControllerStyleAlert说：『我就看看，不说话！』
-
-![](http://7xpo5x.com1.z0.glb.clouddn.com/UIAlertController-09.png)
-
-* UIAlertController用法比较简单，都是比较实用。如果想要实现更发杂的功能或者效果还需要自己去定制的。
-
- [需要源代码点我](https://github.com/Leon-Kang/studyA/tree/master/AboutUIAlertController)
-
-###未完待续！
+好几个月的板子就这么白了，虽然我比较水，但是也终归是一种记录和激励自己学习的途径吧。如果大家有不统计贡献度这种问题，也可以尝试一些重新配置用户名以及邮箱。
