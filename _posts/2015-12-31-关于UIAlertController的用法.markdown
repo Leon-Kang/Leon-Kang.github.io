@@ -113,4 +113,5 @@ UIAlertAction *certain = [UIAlertAction actionWithTitle:@"清空" style:UIAlertA
 
  [需要源代码点我](https://github.com/Leon-Kang/studyA/tree/master/AboutUIAlertController)
 
-###未完待续！
+##续篇
+[利用Swift2.0编写UIAlertController](http://leon-kang.github.io/ios/2016/01/05/利用Swift语言编写UIAlertController/)

@@ -23,8 +23,8 @@ let alertView: UIAlertController = UIAlertController.init(title: "AlertView", me
 * 然后我们再给它添加两个按钮，如果不添加任何按钮跳转到UIAlertController是无法返回的。
 
 {% highlight swift linenos %}
-let alertViewAction: UIAlertAction = UIAlertAction.init(title: "确定", style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in              
-            })          
+let alertViewAction: UIAlertAction = UIAlertAction.init(title: "确定", style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in 
+      })          
 let alertViewCancelAction: UIAlertAction = UIAlertAction.init(title: "取消", style: UIAlertActionStyle.Cancel, handler: nil)           
 alertView.addAction(alertViewAction)
 alertView.addAction(alertViewCancelAction)
@@ -102,5 +102,46 @@ let alertSheet = UIAlertController.init(title: nil, message: nil, preferredStyle
 
 ![](http://7xpo5x.com1.z0.glb.clouddn.com/SwiftUIAlertController08.png)
 
+###顺便补上监听传值的那一部分
+
+* 这是设置监听的那一部分，在textField的闭包中设置
+
+
+
+{% highlight swift linenos %}
+alertView.addTextFieldWithConfigurationHandler({ (UITextField) -> Void in
+UITextField.placeholder = "name"
+UITextField.clearButtonMode = UITextFieldViewMode.WhileEditing
+                
+// 设置监听
+ _ = NSNotificationCenter.defaultCenter().addObserver(self, selector: "textChange:" , name: UITextFieldTextDidChangeNotification, object: UITextField)
+                
+})
+{% endhighlight %}
+
+* 监听方法
+
+{% highlight swift linenos %}
+func textChange(notification: NSNotification) {
+   let textFied = notification.object as! UITextField      
+   textLabel.text = textFied.text
+}
+{% endhighlight %}
+
+* 释放监听
+
+{% highlight swift linenos %}
+deinit {
+    NSNotificationCenter.defaultCenter().removeObserver(self)
+}
+{% endhighlight %}
+
+
+
+
+
 ##总结
 > 控件的使用方法几乎是没有变化的，而且swift在语法上要简洁很多很多。使用起来也非常方便高效，如果你还在OC的坑里摸不着头脑，直接学习swift吧！
+
+[代码传送门](https://github.com/Leon-Kang/studyA/tree/master/SwiftUIAlertController)
+
