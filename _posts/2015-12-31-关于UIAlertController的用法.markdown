@@ -111,7 +111,7 @@ UIAlertAction *certain = [UIAlertAction actionWithTitle:@"清空" style:UIAlertA
 
 * UIAlertController用法比较简单，但是比较实用。如果想要实现更繁杂的功能或者效果还是需要自己去定制的。
 
- [需要源代码点我](https://github.com/Leon-Kang/studyA/tree/master/AboutUIAlertController)
+ [需要源代码点我](https://github.com/Leon-Kang/UIAlertController)
 
 ##续篇
 [利用Swift2.0编写UIAlertController](http://leon-kang.github.io/ios/2016/01/05/利用Swift语言编写UIAlertController/)

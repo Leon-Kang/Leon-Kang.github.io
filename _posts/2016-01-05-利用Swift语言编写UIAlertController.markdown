@@ -143,5 +143,5 @@ deinit {
 ##总结
 > 控件的使用方法几乎是没有变化的，而且swift在语法上要简洁很多很多。使用起来也非常方便高效，如果你还在OC的坑里摸不着头脑，直接学习swift吧！
 
-[代码传送门](https://github.com/Leon-Kang/studyA/tree/master/SwiftUIAlertController)
+[代码传送门](https://github.com/Leon-Kang/UIAlertController)
 
