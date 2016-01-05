@@ -4,7 +4,7 @@ author: Leon-Kang
 title: 关于UIAlertController的用法
 date:   2015-12-31
 categories: iOS
-tag: iOS
+tag: iOS, Objective-C, UIALertController
 ---
 
 
