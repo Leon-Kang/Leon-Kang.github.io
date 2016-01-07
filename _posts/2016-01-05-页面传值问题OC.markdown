@@ -13,18 +13,136 @@ tag: Objective-C, ios
 
 > 在iOS界面搭建中，页面传值是肯定会使用到的。而经常使用的传值方式也无非那么几种。
 
-##一、协议方法
+##一、委托方法
+> 协议方法是一种非常常用的传值方法，只要在协议中声明一个协议方法，然后两个类一个作为委托方一个作为遵守方来调用和实现方法就可以实现传值。十分高效而且针对性很强。
+
+* 首先创建一个.h头文件，当然也可以直接写在委托方的类文件中，协议内容如下：
+
+{% highlight Objective-C linenos %}
+@protocol PassValueDelegate <NSObject>
+
+@optional
+
+- (void)passValue:(NSString *)value;
+
+@end
+{% endhighlight %}
+
+* 然后需要思考哪一个类来做遵守协议的一方，在这个例子中，因为第一个类只需要接受值显示在UILabel上就可以，不用去管值的来源，所以我们让其成为遵守协议的一方，而第二个带UITextField的类则作为委托者。
+* 这样我们需要先让类二提供一个delegate属性，以指定受委托的对象，然后调用一次passValue：方法把值传出去。
+
+
+1. 声明delegate属性
+
+{% highlight Objective-C linenos %}
+@property (nonatomic, strong) id<PassValueDelegate> delegate;
+{% endhighlight %}
+
+2. 调用passValue：方法，这里是在跳转的按钮方法中调用的：
+
+{% highlight Objective-C linenos %}
+- (IBAction)buttonAction:(id)sender { 
+    [self.delegate passValue:self.valueTextField.text];
+    [self dismissViewControllerAnimated:YES completion:nil];
+    
+}
+{% endhighlight %}
+
+* 然后是要在第一个接受信息的类中设置遵守协议，然后设置代理者，最后重写协议方法。
+
+1. 遵守协议：
+{% highlight Objective-C linenos %}
+@interface KLViewController () <PassValueDelegate>
+
+@end
+{% endhighlight %}
+
+2. 设置代理，这里是在跳转的button方法中写的：
+{% highlight Objective-C linenos %}
+KLAViewController *aViewC = [[KLAViewController alloc] init];
+aViewC.delegate = self;
+{% endhighlight %}
+
+3. 重写协议方法，这里的value参数便是从另一个类中调用该方法时传出的的值，在这里我们把它赋给UILabel：
+{% highlight Objective-C linenos %}
+- (void)passValue:(NSString *)value
+{
+    self.valueLabel.text = value;
+}
+{% endhighlight %}
+
+
+
+* 协议传值无非这么五步，重要的是思考清楚谁作为委托者而谁遵守协议，以防止出现混乱的逻辑或者绕远路的情况发生。
+* 最后是，记住几个主要步骤：
+
+![](http://7xpo5x.com1.z0.glb.clouddn.com/passValue03.png)
+
+
+
+
+
+
+
 
 ##二、block方法
+> block大家应该都不陌生了，从iOS4.0开始广泛的应用在iOS开发中，是一种C语言的扩充功能，在Objective-C中也得到了很好地支持与运用，在这里我们不对其本身多做赘述。只是运用block来实现界面之间传值功能。
+
+* 同样的两个类：一个有UITextField控件，一个有UILabel控件。现在实现在第二个界面输入，第一个界面显示。
+* 首先在第二个类中声明一个block块，这里利用typedef把block块声明成名叫returnTextBlock的类型：
+
+{% highlight Objective-C linenos %}
+typedef void(^returnTextBlock)(NSString *text);
+{% endhighlight %}
+
+* 然后我们还需要给类2声明一个returnTextBlock类型的属性和一个调用returnTextBlock的方法：
+
+{% highlight Objective-C linenos %}
+@property (nonatomic, copy) returnTextBlock returnTextBlock;
+- (void)returnText:(returnTextBlock)textBlock;
+{% endhighlight %}
+
+* 实现该方法，并给block属性赋值，这里是在跳转的button方法中给其赋值的：
+
+{% highlight Objective-C linenos %}
+- (void)returnText:(returnTextBlock)textBlock
+{
+    self.returnTextBlock = textBlock;
+}
+{% endhighlight %}
+
+{% highlight Objective-C linenos %}
+- (IBAction)buttonAction:(id)sender {
+    self.returnTextBlock(self.myTextField.text);
+    [self dismissViewControllerAnimated:YES completion:nil];
+}  
+{% endhighlight %}
+
+* 在类1中调用block方法以实现传值：
+
+{% highlight Objective-C linenos %}
+- (IBAction)buttonActive:(id)sender {
+    KLAViewController *aViewC = [[KLAViewController alloc] init];
+    // 拿到block传的值
+    [aViewC returnText:^(NSString *text) {
+        self.textLabel.text = text;
+    }];
+    [self presentViewController:aViewC animated:YES completion:nil
+     ];  
+}
+{% endhighlight %}
+
+* 在两个页面之间存在一些联系时（例如跳转或者包含），使用block传值是非常方便的，不像协议传值需要重新创建协议也不像通知模式一样使用NSString类型作为识别方法容易出现错误。但是使用block需要一定的熟练度，这里可能说的有些含糊，稍后补上。
+
 
 ##三、使用NSNotificationCenter通知模式
 > 类似于广播的一种传值模式，十分简单易用。一般负责在两个不同的类之间传值，且耦合度很低。着这种方式中NSNotificationCenter担任一个中介者的身份，已提供观察者与被观察者相互传递信息。
 
->Objective-C中使用NSNotifation表示通知，每个NSNotifation对象都具有名称（NSNotificationCenter根据该名称检索此通知的所有观察者）、来源对象（发布该通知的对象）和可选的userInfo字典（来源对象需要告诉观察者的额外信息）。
+> Objective-C中使用NSNotifation表示通知，每个NSNotifation对象都具有名称（NSNotificationCenter根据该名称检索此通知的所有观察者）、来源对象（发布该通知的对象）和可选的userInfo字典（来源对象需要告诉观察者的额外信息）。
 
 * NSNotificationCenter就相当于一个俱乐部，只要一行代码一个类就能加入其中成为会员，当然这个类要告诉俱乐部它对哪些信息感兴趣，当有新的信息出现时，俱乐部会询问每一位会员这个信息是否是它们所需要的。
 
-来看注册通知的代码：
+* 来看注册通知的代码：
 
 {% highlight Objective-C linenos %}
 [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(printName:) name:@"name" object:nil];
@@ -62,6 +180,8 @@ NSString *name = @"Leon-Kang";
 
 
 
+
+####[需要代码戳这里](https://github.com/Leon-Kang/PassValue)
 
 
  
