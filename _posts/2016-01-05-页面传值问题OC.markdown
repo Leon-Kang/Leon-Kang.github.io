@@ -1,0 +1,67 @@
+---
+layout: post
+author: Leon-Kang
+title: iOS页面传值问题（Objective-C篇）
+date:   2016-01-05
+categories: iOS
+tag: Objective-C, ios
+---
+
+#iOS页面传值问题（Objective-C篇）
+
+> 因为自己对这方面还有一些不够熟练。现在总结一下常用的几种方法，方便自己复习和以后使用。
+
+> 在iOS界面搭建中，页面传值是肯定会使用到的。而经常使用的传值方式也无非那么几种。
+
+##一、协议方法
+
+##二、block方法
+
+##三、使用NSNotificationCenter通知模式
+> 类似于广播的一种传值模式，十分简单易用。一般负责在两个不同的类之间传值，且耦合度很低。着这种方式中NSNotificationCenter担任一个中介者的身份，已提供观察者与被观察者相互传递信息。
+
+>Objective-C中使用NSNotifation表示通知，每个NSNotifation对象都具有名称（NSNotificationCenter根据该名称检索此通知的所有观察者）、来源对象（发布该通知的对象）和可选的userInfo字典（来源对象需要告诉观察者的额外信息）。
+
+* NSNotificationCenter就相当于一个俱乐部，只要一行代码一个类就能加入其中成为会员，当然这个类要告诉俱乐部它对哪些信息感兴趣，当有新的信息出现时，俱乐部会询问每一位会员这个信息是否是它们所需要的。
+
+来看注册通知的代码：
+
+{% highlight Objective-C linenos %}
+[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(printName:) name:@"name" object:nil];
+{% endhighlight %}
+
+* 使用此代码便能注册为观察者（会员），Observer：此处对象即为注册者； name:后是要加上此观察者所要观察的信息（此会员感兴趣的内容）（可以为单纯的NSString类型，也可以是系统封装好的名称）；selector:此处一般添加一个SEL选择器以实现当接收到信息时执行某一个方法的动作；最后一个参数object:表示只对哪个发送对象的信息作出响应（只接受某一个对象的信息），设为nil则是接受所有发送者的信息。
+
+* 然后我们在另一个界面的Controller中发送信息：
+
+{% highlight Objective-C linenos %}
+NSString *name = @"Leon-Kang";
+[[NSNotificationCenter defaultCenter] postNotificationName:@"name" object:name];
+{% endhighlight %}
+
+* 这行代码便是向NSNotificationCenter发送了一条名为"name"的广播，发送出去的是一个NSString类型的对象name。这样就可以把这个对象发送给需要接受的观察者了。如图所示：
+
+![](http://7xpo5x.com1.z0.glb.clouddn.com/passValue010.png)
+
+* 当然这个广播不是指向单一对象的：
+
+![](http://7xpo5x.com1.z0.glb.clouddn.com/passValue020.png)
+
+
+* 但是不要忘记了最重要的一点，每次接受完是要移除观察的，这里是在接收到信息后执行的方法中移除的，如下：
+
+{% highlight Objective-C linenos %}
+- (void)printName:(NSNotification *)notifaction {
+    NSString *name = notifaction.object;
+    NSLog(@"%@", name);
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+{% endhighlight %}
+
+* 如果不去移除可能会出现一些意料之外的问题，在这个例子中如果没有移除观察者，每次打印出的数据会累加，说明每次切换回来都重新注册了一次观察者，而每个观察者（未移除的与新注册的）都会接收到信息而执行打印方法。
+
+
+
+
+
+ 
