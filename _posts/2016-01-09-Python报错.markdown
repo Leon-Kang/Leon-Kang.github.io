@@ -1,0 +1,52 @@
+---
+layout: post
+author: Leon-Kang
+title: 关于Python报"AttributeError("'NoneType' object has no attribute 'find'",)"错误的一种情况
+date:   2016-01-09 01:38:04
+categories: Python
+tag: Python
+---
+
+> 前些日子开始使用Python，写了一段爬虫程序作为练习。然后诡异的是无论如何都只能抓取到一个链接的数据，页面分析器直接无法运行。今天晚上重新打开，一个字母一个标点的去死扣后还是无法发现问题所在。
+
+* 报错内容："AttributeError("'NoneType' object has no attribute 'find'",)"
+
+
+* 因为代码中使用了BeautifulSoup的find方法，一直卡在这一句上。
+
+
+{% highlight Python linenos %}
+
+def _get_new_data(self, page_url, soup):
+        res_data = {}
+        res_data['url'] = page_url
+        title_node=soup.find('dd',class_="lemmaWgt-lemmaTitle-title").find("h1")
+        res_data['title'] = title_node.get_text()
+        summary_node = soup.find("div",class_="lemma-summary")
+        res_data['summary'] = summary_node.get_text()        
+        return res_data
+        
+{% endhighlight %}
+
+* 根据报错原因可以分析出soup应该是NoneType，但是诡异的是它真的不是·······（头顶一排乌鸦飘过）！
+
+打断点查看,的确不是：
+![](http://7xpo5x.com1.z0.glb.clouddn.com/pythonwrong07.png)
+
+* 这个时候我是懵逼地，因为实在找不出原因，我新建了另一个项目准备试试其他练习。
+
+创建项目时我发现我竟然有三个版本的Python，系统自带的2.7.10，我安装的3.5.1，还有一个不知道什么时候安装的2.7.11，然后这个爬虫恰好就在这个环境下。我把它脱到2.7.11下竟然就神奇的跑起来了。以下是对比图：
+![](http://7xpo5x.com1.z0.glb.clouddn.com/pythonwrong06.png)
+有没有觉得什么不一样？
+拉近了再看：
+![](http://7xpo5x.com1.z0.glb.clouddn.com/pythonwrong04.png)
+![](http://7xpo5x.com1.z0.glb.clouddn.com/pythonwrong02.png)
+
+2.7.11环境下有两个site-package文件···而且内容是一样的：
+![](http://7xpo5x.com1.z0.glb.clouddn.com/pythonwrong09.png)
+
+而且还有一点十分诡异，两个环境下的soup内容不一样：
+![](http://7xpo5x.com1.z0.glb.clouddn.com/pythonwrong11.png)
+![](http://7xpo5x.com1.z0.glb.clouddn.com/pythonwrong10.png)
+
+上图是2.7.10下的soup，下图的2.7.11下的。猜测是因为2.7.11安装路径问题造成的混乱情况。具体的问题因为经验技术有限还不得而知····。
