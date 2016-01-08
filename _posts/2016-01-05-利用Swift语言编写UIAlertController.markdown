@@ -4,7 +4,7 @@ author: Leon-Kang
 title: 利用Swift2.0编写UIAlertController
 date:   2016-01-05
 categories: iOS
-tag: swift, ios, UIAlertController
+tag: iOS
 ---
 
 ##利用Swift2.0编写UIAlertController

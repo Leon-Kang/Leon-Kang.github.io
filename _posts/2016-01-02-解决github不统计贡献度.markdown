@@ -4,7 +4,7 @@ author: Leon-Kang
 title: 解决github不统计贡献度
 date:   2016-01-02
 categories: iOS
-tag: ios
+
 ---
 
 #####今天看自己的贡献度面板，白花花一片。一直有使用的github桌面版应用和Xcode提交应用。那么问题来了---为什么别人的都是绿油油一片，而我的就一次commit都没有统计到呢？
