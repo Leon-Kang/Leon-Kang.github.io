@@ -2,7 +2,7 @@
 layout: post
 author: Leon-Kang
 title: iOS页面传值问题（swift2.0篇）
-date:   2016-01-10
+date:  2016-01-10
 categories: iOS
 tag: swift
 ---
@@ -117,56 +117,6 @@ typealias nameValue = (String)->Void
     }
 {% endhighlight %}
 
-* 让我们看一下B文件的代码进展，这里只说代码可能不大直观，我们看一下每段代码的位置：
-import UIKit
-
-/**
- *    @author kl, 16-01-10 17:01:25
- *
- *    @brief 传值协议
- */
-protocol passValueDelegate {
-    func passValue(var text: String)
-}
-
-typealias nameValue = (String)->Void
-
-class BViewController: UIViewController {
-    // 1、声明属性
-    var delegate: passValueDelegate?
-    
-    @IBOutlet weak var textField: UITextField!
-    
-    @IBOutlet weak var bNameTextField: UITextField!
-    
-    var nameText: nameValue?
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-    }
-    
-    @IBAction func buttonActive(sender: AnyObject) {
-        // 2、调用代理方法，把值传输出去
-        self.delegate?.passValue(textField.text!)
-        
-        // 使用闭包传值出去
-        self.nameText!(self.bNameTextField.text!)
-        
-        self.dismissViewControllerAnimated(true, completion: nil)
-    }
-    
-    // 闭包方法
-    func returnNameValue(name: nameValue) {
-        self.nameText = name
-    }
-
-    
-}
-{% endhighlight %}
-
-
-
 * 在A类文件中做的事情：
 
 1、调用一次A类对象的闭包传值方法拿到值，这里是在Button的跳转方法里调用的：
@@ -177,7 +127,7 @@ class BViewController: UIViewController {
         }
 {% endhighlight %}
 
-
+* 最后有两个页面的全部代码，可以参照整体来看。
 
 
 ##三、使用NSNotificationCenter
@@ -241,7 +191,8 @@ class BViewController: UIViewController {
 
 * 这样A中的nameTextField和B中的bNameTextField就相连接起来了，在这两个控件中输入信息在更换页面时都会显示在另一个控件上。从B到A是采用的是闭包传值，而从A到B时采用的是广播传值。
 
-最后的A类文件：
+####最后的A类文件内容：
+
 {% highlight swift linenos %}
 import UIKit
 
@@ -282,7 +233,8 @@ class AViewController: UIViewController, passValueDelegate // 1、遵守协议
 }
 {% endhighlight %}
 
-最后的B类文件：
+#####最后的B类文件内容：
+
 {% highlight swift linenos %}
 import UIKit
 
@@ -329,8 +281,6 @@ class BViewController: UIViewController {
     func returnNameValue(name: nameValue) {
         self.nameText = name
     }
-
-    
 }
 {% endhighlight %}
 
