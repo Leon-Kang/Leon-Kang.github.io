@@ -4,7 +4,7 @@ author: Leon-Kang
 title: iOS页面传值问题（Objective-C篇）
 date:   2016-01-05
 categories: iOS
-tag: ios
+tag: iOS
 ---
 
 #iOS页面传值问题（Objective-C篇）
