@@ -76,7 +76,7 @@ aViewC.delegate = self;
 * 协议传值无非这么五步，重要的是思考清楚谁作为委托者而谁遵守协议，以防止出现混乱的逻辑或者绕远路的情况发生。
 * 最后是，记住几个主要步骤：
 
-![](http://7xpo5x.com1.z0.glb.clouddn.com/passValue03.png)
+![](http://7xpo5x.com1.z0.glb.clouddn.com/passValue030.png)
 
 
 

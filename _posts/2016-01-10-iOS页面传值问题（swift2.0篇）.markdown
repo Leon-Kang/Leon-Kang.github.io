@@ -1,0 +1,92 @@
+---
+layout: post
+author: Leon-Kang
+title: iOS页面传值问题（swift2.0篇）
+date:   2016-01-09
+categories: iOS
+tag: swift
+---
+
+#iOS页面传值问题（swift2.0篇）
+
+> 同样是介绍iOS开发中的页面传值，此篇与上一篇[使用Objective-C传值](http://leon-kang.github.io/ios/2016/01/05/页面传值问题OC/)对应。在OC中的方法在swift中也是同样适用的，而且还要介绍一些swift特有的方式。
+
+
+##一、协议
+> 使用协议还是3+2一共五个步骤，按部就班来实现就可以了。还是先想清楚谁委托谁代理，在逻辑上不要出现错误。
+
+* 新的项目中创建了两个新的类：A类负责显示，B类负责输入。所以说A只要负责拿到数据即可，让B类来作委托方。这里的协议是写在委托方的文件之中的，并没有重新创建。
+
+借用上一篇的图来继续实现各个步骤：
+![](http://7xpo5x.com1.z0.glb.clouddn.com/passValue030.png)
+
+* 继续来委托方的两步走，因为这里代码行数真的不多，而且不分.h和.m，我们来看一下B类的所有代码：
+
+
+{% highlight swift linenos %}
+import UIKit
+
+/**
+ *    @author kl, 16-01-10 17:01:25
+ *
+ *    @brief 传值协议
+ */
+protocol passValueDelegate {
+    func passValue(var text: String)
+}
+
+class BViewController: UIViewController {
+    // 1、声明属性
+    var delegate: passValueDelegate?
+    
+    @IBOutlet weak var textField: UITextField!
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+    }
+    
+    @IBAction func buttonActive(sender: AnyObject) {
+        
+        // 2、调用代理方法，把值传输出去
+        self.delegate?.passValue(textField.text!)
+        
+        self.dismissViewControllerAnimated(true, completion: nil)
+    }
+}
+{% endhighlight %}
+
+* 接着是代理方的三步走，还是来看全部代码：
+{% highlight swift linenos %}
+import UIKit
+
+class AViewController: UIViewController, passValueDelegate // 1、遵守协议
+{
+
+    @IBOutlet weak var textLabel: UILabel!
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+    }
+    
+    @IBAction func buttonAction(sender: AnyObject) {
+        let bVC = BViewController()
+        
+        // 2、设置代理
+        bVC.delegate = self
+        
+        self.presentViewController(bVC, animated: true, completion: nil)
+        
+    }
+
+    // 3、重写协议方法，取到传值
+    func passValue(text: String) {
+        textLabel.text = text
+    }
+
+}
+{% endhighlight %}
+
+##二、闭包
+##三、使用NSNotificationCenter
