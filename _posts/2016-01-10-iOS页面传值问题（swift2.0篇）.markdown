@@ -255,9 +255,7 @@ class AViewController: UIViewController, passValueDelegate // 1、遵守协议
         super.viewDidLoad()
         self.nameTextField.clearButtonMode = .WhileEditing
     }
-    
-
-    
+        
     @IBAction func buttonAction(sender: AnyObject) {
         let bVC = BViewController()
         
@@ -288,11 +286,6 @@ class AViewController: UIViewController, passValueDelegate // 1、遵守协议
 {% highlight swift linenos %}
 import UIKit
 
-/**
- *    @author kl, 16-01-10 17:01:25
- *
- *    @brief 传值协议
- */
 protocol passValueDelegate {
     func passValue(var text: String)
 }
@@ -304,9 +297,7 @@ class BViewController: UIViewController {
     var delegate: passValueDelegate?
     
     @IBOutlet weak var textField: UITextField!
-    
     @IBOutlet weak var bNameTextField: UITextField!
-    
     var nameText: nameValue?
     
     override func viewDidLoad() {
@@ -328,12 +319,6 @@ class BViewController: UIViewController {
         self.dismissViewControllerAnimated(true, completion: nil)
     }
     
-
-    /**
-     收到广播后所执行的方法
-     
-     - parameter notifaction: notifaction
-     */
     func printName(notifaction: NSNotification) {
         print(notifaction.object)
         self.bNameTextField.text = notifaction.object as? String
