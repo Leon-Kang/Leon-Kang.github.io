@@ -134,7 +134,7 @@ tag: iOS
 {% endhighlight %}
 
 效果图：
-![](http://7xpo5x.com1.z0.glb.clouddn.com/UICollectionView07.png)
+![](http://7xpo5x.com1.z0.glb.clouddn.com/UICollectionView05.png)
 
 * 继续做一些微调什么的，这里都可以根据不同的Section来调整数据，我们把section换成两个而item换成每个section中有5个，这里注意一下section的编号也是从0开始的而不是1：
 
@@ -171,6 +171,8 @@ tag: iOS
     return minI;
 }
 {% endhighlight %}
+
+![](http://7xpo5x.com1.z0.glb.clouddn.com/UICollectionView07.png)
 
 * item大小，行间距，列间距其实使用flowLayout也是可以设置的，至于用哪种方式就看你自己需求而定了：
 
