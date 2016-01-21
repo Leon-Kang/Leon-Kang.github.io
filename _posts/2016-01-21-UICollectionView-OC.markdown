@@ -11,7 +11,7 @@ tag: iOS
 
 
 ### 一、初始化和基本设置
-图片来自[开发者网站](https://developer.apple.com/library/prerelease/ios/documentation/UIKit/Reference/UICollectionView_class/)，大家也可以直接看官方文档，说的比较详细，主要的代理方法都有列出。我们可以看到它继承自UIScrollView，与UITableView是一样的，在布局时必须小心谨慎，不然可能因为很多原因发生异常。与UITableView相比，UICollectionView在布局上会更加灵活，下面来一一介绍。
+> 图片来自[开发者网站](https://developer.apple.com/library/prerelease/ios/documentation/UIKit/Reference/UICollectionView_class/)，大家也可以直接看官方文档，说的比较详细，主要的代理方法都有列出。我们可以看到它继承自UIScrollView，与UITableView是一样的，在布局时必须小心谨慎，不然可能因为很多原因发生异常。与UITableView相比，UICollectionView在布局上会更加灵活，下面来一一介绍。
 
 ![](http://7xpo5x.com1.z0.glb.clouddn.com/UICollectionView01.png)
 
@@ -24,7 +24,8 @@ tag: iOS
 方法一：如果还是像以往创建对象一样使用这种类似的方法，结果是会报错的，不要问我为什么知道的···：
 
 {% highlight Objective-C linenos %}
-    UICollectionView *collectionView = [[UICollectionView alloc] initWithFrame:[UIScreen mainScreen].bounds ];
+    CGRect screen = [UIScreen mainScreen].bounds;
+    UICollectionView *collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 25, screen.size.width,
     [self.view addSubview:collectionView];
 {% endhighlight %}
 
@@ -213,6 +214,61 @@ tag: iOS
 
 ![](http://7xpo5x.com1.z0.glb.clouddn.com/UICollectionView08.png)
 
+###三、Header和Footer
+
+* Header和Footer也是CollectionView和TableView所不一样的地方。在CollectionView中可以直接使用UICollectionReusableView这个类创建Header和Footer，也可以自己使用xib做定制，在页面布局上是十分强大的。
+
+* 其实步骤跟Cell有些类似，首先设置使用flowLayout设置它们的高度和宽度。
+
+{% highlight Objective-C linenos %}
+    flowLayout.headerReferenceSize = CGSizeMake(screen.size.width, 25);
+    flowLayout.footerReferenceSize = CGSizeMake(screen.size.width, 20);
+{% endhighlight %}
+
+* 然后进行方法的代理方法的编写：
+
+{% highlight Objective-C linenos %}
+- (UICollectionReusableView *) collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
+{
+    UICollectionReusableView *reusableview = nil;
+    UILabel *lable = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, 20)];
+    lable.textAlignment = NSTextAlignmentCenter;
+    
+    if (kind == UICollectionElementKindSectionHeader)
+    {
+        UICollectionReusableView *headerView = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"HeaderView" forIndexPath:indexPath];
+        
+        lable.textColor = [UIColor blueColor];
+        lable.text = @"HeaderView";
+        headerView.backgroundColor = [UIColor orangeColor];
+        [headerView addSubview:lable];
+        reusableview = headerView;
+    }
+    
+    if (kind == UICollectionElementKindSectionFooter)
+    {
+        UICollectionReusableView *footerview = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"FooterView" forIndexPath:indexPath];
+        
+        lable.textColor = [UIColor whiteColor];
+        lable.text = @"FooterView";
+        footerview.backgroundColor = [UIColor blackColor];
+        [footerview addSubview:lable];
+        reusableview = footerview;
+    }
+    
+    return reusableview;
+}
+{% endhighlight %}
+
+* 最后进行注册：
+
+{% highlight Objective-C linenos %}
+    [collectionView registerClass:[UICollectionReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"HeaderView"];
+    [collectionView registerClass:[UICollectionReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"FooterView"];
+{% endhighlight %}
+
+效果如图，这里只是做个示范，所以很丑，请不要在意：
+![](http://7xpo5x.com1.z0.glb.clouddn.com/UICollectionView11.png)
 
 
 
