@@ -270,5 +270,7 @@ tag: iOS
 效果如图，这里只是做个示范，所以很丑，请不要在意：
 ![](http://7xpo5x.com1.z0.glb.clouddn.com/UICollectionView11.png)
 
+##未完待续，最后还会补上showmenu的方法等等。
 
+###[代码在这里](https://github.com/Leon-Kang/UICollectionView)
 
