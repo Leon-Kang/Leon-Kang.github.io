@@ -270,7 +270,21 @@ tag: iOS
 效果如图，这里只是做个示范，所以很丑，请不要在意：
 ![](http://7xpo5x.com1.z0.glb.clouddn.com/UICollectionView11.png)
 
-##未完待续，最后还会补上showmenu的方法等等。
+###四、showMenu
+* 首先来看需要实现的方法，第一个方法是决定哪些cell是可弹出menu的方法，这里直接返回YES，令所有的cell都可以弹出；第二个方法则是用来确定支持哪一种编辑方法，在CollectionView中仅支持三种编辑方法，粘贴paste，复制copy，剪切cut，稍后看代码；当点击了某个编辑方法，则会回调第三个方法来执行某些操作：
+
+{% highlight Objective-C linenos %}
+// These methods provide support for copy/paste actions on cells.
+// All three should be implemented if any are.
+- (BOOL)collectionView:(UICollectionView *)collectionView shouldShowMenuForItemAtIndexPath:(NSIndexPath *)indexPath;
+- (BOOL)collectionView:(UICollectionView *)collectionView canPerformAction:(SEL)action forItemAtIndexPath:(NSIndexPath *)indexPath withSender:(nullable id)sender;
+- (void)collectionView:(UICollectionView *)collectionView performAction:(SEL)action forItemAtIndexPath:(NSIndexPath *)indexPath withSender:(nullable id)sender;
+{% endhighlight %}
+
+点击效果如图，因为这里对第三个方法还没有写入任何内容，所以点击编辑方法时还没有任何效果:
+
+![](http://7xpo5x.com1.z0.glb.clouddn.com/UICollectionView12.png)
+
 
 ###[代码在这里](https://github.com/Leon-Kang/UICollectionView)
 
