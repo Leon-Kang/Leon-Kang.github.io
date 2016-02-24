@@ -14,7 +14,7 @@ tag: iOS
 * 代码如下：
 
 
-{% highlight Objective-C linenos %}
+{% highlight Objective-C %}
 - (void)PushToWebViewWithFileName:(NSString *)fileName {
     UIWebView *webView = [[UIWebView alloc] init];
     NSString *path = [[NSBundle mainBundle] pathForResource:fileName ofType:@"html"];

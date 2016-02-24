@@ -22,7 +22,7 @@ tag: 面试
 5、手写代码能力堪忧；
 
 最后贴上整理以后的代码：
-{% highlight C linenos %}
+{% highlight C %}
 void strChange(char s[]) { 
     for (int i = 0; s[i] != '\0'; i++) {
         if (s[0] > 'a' && s[0] < 'z') {

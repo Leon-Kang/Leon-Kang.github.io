@@ -23,7 +23,7 @@ tag: swift
 * 继续来委托方的两步走，因为这里代码行数真的不多，而且不分.h和.m，我们来看一下B类的所有代码：
 
 
-{% highlight swift linenos %}
+{% highlight swift %}
 import UIKit
 
 /**
@@ -57,7 +57,7 @@ class BViewController: UIViewController {
 {% endhighlight %}
 
 * 接着是代理方的三步走，还是来看全部代码：
-{% highlight swift linenos %}
+{% highlight swift %}
 import UIKit
 
 class AViewController: UIViewController, passValueDelegate // 1、遵守协议
@@ -94,23 +94,23 @@ class AViewController: UIViewController, passValueDelegate // 1、遵守协议
 * 需要在B类文件中做的事情：
 
 1、在B类先利用typealias声明一个闭包类型：
-{% highlight swift linenos %}
+{% highlight swift %}
 typealias nameValue = (String)->Void
 {% endhighlight %}
 
 2、然后在声明一个此类型的属性：
-{% highlight swift linenos %}
+{% highlight swift %}
     var nameText: nameValue?
 {% endhighlight %}
 
 3、掉用一次闭包属性把值传出去，此处是在Button的跳转方法中调用的：
-{% highlight swift linenos %}
+{% highlight swift %}
         // 使用闭包传值出去
         self.nameText!(self.bNameTextField.text!)
 {% endhighlight %}
 
 4、再添加一个方法用于传值：
-{% highlight swift linenos %}
+{% highlight swift %}
     // 闭包方法
     func returnNameValue(name: nameValue) {
         self.nameText = name
@@ -120,7 +120,7 @@ typealias nameValue = (String)->Void
 * 在A类文件中做的事情：
 
 1、调用一次A类对象的闭包传值方法拿到值，这里是在Button的跳转方法里调用的：
-{% highlight swift linenos %}
+{% highlight swift %}
         // 取到闭包传递的值
         bVC.returnNameValue { (name) -> Void in
             self.nameTextField.text = name
@@ -135,7 +135,7 @@ typealias nameValue = (String)->Void
 
 1、A发出一个名为"name"的广播，广播内容是A页面上的textField所输入的内容，这里是写在跳转语句后边的，以确保发送的广播是输入完成以后的：
 
-{% highlight swift linenos %}
+{% highlight swift %}
     @IBAction func buttonAction(sender: AnyObject) {
         let bVC = BViewController()
         
@@ -156,7 +156,7 @@ typealias nameValue = (String)->Void
 
 2、在B类中接收信息，并在收到时执行指定方法，方法的参数也还是跟Objective-C中一样，第一个为要注册的观察者；第二个同样是SEL类型的参数，不过在swift中没有了@selector关键字，采用以String类型输入要执行的方法名，这个跟OC中是有些区别的；第三个name参数即为要接收的信息的名字，这里采用String类型作为标识；最后一个参数同样是是否指定信息的发送者，填写的话便表示你只需要你填写的那个对象发出的信息，这里nil表示不指定对象：
 
-{% highlight swift linenos %}
+{% highlight swift %}
     override func viewDidLoad() {
         super.viewDidLoad()
         self.bNameTextField.clearButtonMode = .WhileEditing
@@ -169,7 +169,7 @@ typealias nameValue = (String)->Void
 
 * 方法内容：
 
-{% highlight swift linenos %}
+{% highlight swift %}
     func printName(notifaction: NSNotification) {
         print(notifaction.object)
         self.bNameTextField.text = notifaction.object as? String
@@ -178,7 +178,7 @@ typealias nameValue = (String)->Void
 
 3、在方法中添加移除观察者者的代码：
 
-{% highlight swift linenos %}
+{% highlight swift %}
     func printName(notifaction: NSNotification) {
         print(notifaction.object)
         self.bNameTextField.text = notifaction.object as? String
@@ -193,7 +193,7 @@ typealias nameValue = (String)->Void
 
 ####最后的A类文件内容：
 
-{% highlight swift linenos %}
+{% highlight swift %}
 import UIKit
 
 class AViewController: UIViewController, passValueDelegate // 1、遵守协议
@@ -235,7 +235,7 @@ class AViewController: UIViewController, passValueDelegate // 1、遵守协议
 
 #####最后的B类文件内容：
 
-{% highlight swift linenos %}
+{% highlight swift %}
 import UIKit
 
 protocol passValueDelegate {

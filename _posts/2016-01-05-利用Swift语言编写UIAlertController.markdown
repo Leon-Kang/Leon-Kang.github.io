@@ -16,13 +16,13 @@ tag: swift
 ###一、AlertView
 * 还是首先创建一个UIAlertController对象。这里其实我的写法还是骨子里透着OC的灵魂，各个地方都比较规整。在第一部分先这样写，跟OC对照着看效率会比较高，在下一部分会采用『能省则省』的写法来写。
 
-{% highlight swift linenos %}
+{% highlight swift %}
 let alertView: UIAlertController = UIAlertController.init(title: "AlertView", message: "I want to tell you something", preferredStyle: UIAlertControllerStyle.Alert)
 {% endhighlight %}
 
 * 然后我们再给它添加两个按钮，如果不添加任何按钮跳转到UIAlertController是无法返回的。
 
-{% highlight swift linenos %}
+{% highlight swift %}
 let alertViewAction: UIAlertAction = UIAlertAction.init(title: "确定", style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in 
       })          
 let alertViewCancelAction: UIAlertAction = UIAlertAction.init(title: "取消", style: UIAlertActionStyle.Cancel, handler: nil)           
@@ -35,7 +35,7 @@ alertView.addAction(alertViewCancelAction)
 
 * 当然按钮的style还是三种『默认』、『取消』、『销毁』，我们再给它添加一个『销毁』风格的按钮：
 
-{% highlight swift linenos %}
+{% highlight swift %}
 let alertViewDestructive: UIAlertAction = UIAlertAction.init(title: "销毁", style: UIAlertActionStyle.Destructive, handler: { (UIAlertAction) -> Void in
  })
 alertView.addAction(alertViewDestructive)
@@ -45,7 +45,7 @@ alertView.addAction(alertViewDestructive)
 ![](http://7xpo5x.com1.z0.glb.clouddn.com/SwiftUIAlertController02.png)
 * 如果需要在点击时触发某些事件，可以写在handler：这个属性后边的闭包中（相当于OC中的block又有些许不同）。比如我们继续添加一个textField然后在闭包中设置一些属性。
 
-{% highlight swift linenos %}
+{% highlight swift %}
  alertView.addTextFieldWithConfigurationHandler({ (UITextField) -> Void in
                 UITextField.placeholder = "name"
                 UITextField.clearButtonMode = UITextFieldViewMode.WhileEditing
@@ -56,7 +56,7 @@ alertView.addAction(alertViewDestructive)
 ![](http://7xpo5x.com1.z0.glb.clouddn.com/SwiftUIAlertController04.png)
 
 * 最后千万记得跳转到我们创建的alertView上：
-{% highlight swift linenos %}
+{% highlight swift %}
 self.presentViewController(alertView, animated:true , completion: nil)
 {% endhighlight %}
 
@@ -65,7 +65,7 @@ self.presentViewController(alertView, animated:true , completion: nil)
 
 * 创建一个ActionSheet风格的AlertController：
 
-{% highlight swift linenos %}
+{% highlight swift %}
 let alertSheet = UIAlertController.init(title: "alertSheet", message: "no message", preferredStyle: .ActionSheet)
 {% endhighlight %}
 
@@ -73,7 +73,7 @@ let alertSheet = UIAlertController.init(title: "alertSheet", message: "no messag
 
 * 然后同上边一样我们继续给他添加上三个风格的按钮。
 
-{% highlight swift linenos %}
+{% highlight swift %}
 let alertSheetAction = UIAlertAction.init(title: "确定", style: .Default, handler: nil)
 alertSheet.addAction(alertSheetAction)
 let alertSheetCancel = UIAlertAction.init(title: "取消", style: .Cancel, handler: nil)

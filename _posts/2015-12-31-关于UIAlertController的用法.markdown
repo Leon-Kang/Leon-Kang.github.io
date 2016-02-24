@@ -22,7 +22,7 @@ tag: iOS
 * 创建一个UIAlertController对象：
 
 
-{% highlight Objective-C linenos %}
+{% highlight Objective-C %}
 UIAlertController *alertOne = [UIAlertController alertControllerWithTitle:@"I'm alertOne" message:@"I want to tell you something" preferredStyle:UIAlertControllerStyleAlert]; 
 [self presentViewController:alertOne animated:YES completion:nil];
 {% endhighlight %}
@@ -34,7 +34,7 @@ UIAlertController *alertOne = [UIAlertController alertControllerWithTitle:@"I'm 
 * 让我们来为它添加一个『取消』按钮和一个『确定』按钮，让它看起来正常一些。
 
 
-{% highlight Objective-C linenos %}
+{% highlight Objective-C %}
 UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];         
 [alertOne addAction:cancel];    
 UIAlertAction *certain = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];    
@@ -48,7 +48,7 @@ UIAlertAction *certain = [UIAlertAction actionWithTitle:@"确定" style:UIAlertA
 * 接着我们继续在AlertController上插入一个textField控件，实现输入监听。
 
 
-{% highlight Objective-C linenos %}
+{% highlight Objective-C %}
 [alertOne addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
       // 监听
       [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleTextFieldTextDidChangeNotification:) name:UITextFieldTextDidChangeNotification object:textField];
@@ -61,7 +61,7 @@ UIAlertAction *certain = [UIAlertAction actionWithTitle:@"确定" style:UIAlertA
     
    * 这一段是在其自带的block代码块中利用NSNotificationCenter来实现值的传输。如果输入有变动的话就会传出变化的值。当然也可以根据需要写在按钮的方法block块中，以实现点击『取消』或『确定』按钮时实现相应的功能。然后我们继续完成handleTextFieldTextDidChangeNotification:方法：
     
-{% highlight Objective-C linenos %}
+{% highlight Objective-C %}
 - (void)handleTextFieldTextDidChangeNotification:(NSNotification *)notification
 {
     UITextField *textField = notification.object;
@@ -77,7 +77,7 @@ UIAlertAction *certain = [UIAlertAction actionWithTitle:@"确定" style:UIAlertA
 
 
 
-{% highlight Objective-C linenos %}
+{% highlight Objective-C %}
 NSString *title = NSLocalizedString(@"AlertTwo", nil);
 UIAlertController *alertTwo = [UIAlertController alertControllerWithTitle:title message:nil preferredStyle:UIAlertControllerStyleActionSheet];
 {% endhighlight %}
@@ -87,7 +87,7 @@ UIAlertController *alertTwo = [UIAlertController alertControllerWithTitle:title 
 * 这是最原始的形态，还是一样的丑，而且一样无法返回，添加按钮方法同上，但是这次我们把一个换成Destructive风格来看一下效果。
 
 
-{% highlight Objective-C linenos %}
+{% highlight Objective-C %}
 UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
 [alertTwo addAction:cancel];    
 UIAlertAction *certain = [UIAlertAction actionWithTitle:@"清空" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {

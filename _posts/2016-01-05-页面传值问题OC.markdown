@@ -18,7 +18,7 @@ tag: iOS
 
 * 首先创建一个.h头文件，当然也可以直接写在委托方的类文件中，协议内容如下：
 
-{% highlight Objective-C linenos %}
+{% highlight Objective-C %}
 @protocol PassValueDelegate <NSObject>
 
 @optional
@@ -34,13 +34,13 @@ tag: iOS
 
 1、声明delegate属性
 
-{% highlight Objective-C linenos %}
+{% highlight Objective-C %}
 @property (nonatomic, strong) id<PassValueDelegate> delegate;
 {% endhighlight %}
 
 2、调用passValue：方法，这里是在跳转的按钮方法中调用的：
 
-{% highlight Objective-C linenos %}
+{% highlight Objective-C %}
 - (IBAction)buttonAction:(id)sender { 
     [self.delegate passValue:self.valueTextField.text];
     [self dismissViewControllerAnimated:YES completion:nil];
@@ -51,20 +51,20 @@ tag: iOS
 * 然后是要在第一个接受信息的类中设置遵守协议，然后设置代理者，最后重写协议方法。
 
 1、 遵守协议：
-{% highlight Objective-C linenos %}
+{% highlight Objective-C l%}
 @interface KLViewController () <PassValueDelegate>
 
 @end
 {% endhighlight %}
 
 2、设置代理，这里是在跳转的button方法中写的：
-{% highlight Objective-C linenos %}
+{% highlight Objective-C %}
 KLAViewController *aViewC = [[KLAViewController alloc] init];
 aViewC.delegate = self;
 {% endhighlight %}
 
 3、重写协议方法，这里的value参数便是从另一个类中调用该方法时传出的的值，在这里我们把它赋给UILabel：
-{% highlight Objective-C linenos %}
+{% highlight Objective-C %}
 - (void)passValue:(NSString *)value
 {
     self.valueLabel.text = value;

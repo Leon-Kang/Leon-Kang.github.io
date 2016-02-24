@@ -23,7 +23,7 @@ tag: iOS
 
 方法一：如果还是像以往创建对象一样使用这种类似的方法，结果是会报错的，不要问我为什么知道的···：
 
-{% highlight Objective-C linenos %}
+{% highlight Objective-C %}
     CGRect screen = [UIScreen mainScreen].bounds;
     UICollectionView *collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 25, screen.size.width,
     [self.view addSubview:collectionView];
@@ -35,7 +35,7 @@ tag: iOS
 
 不过这种方法你只要补上：
 
-{% highlight Objective-C linenos %}
+{% highlight Objective-C %}
     UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
     collectionView.collectionViewLayout = flowLayout;
 {% endhighlight %}
@@ -46,14 +46,14 @@ tag: iOS
 
 里边包括了关于Header和Footer是否可见，大小如何，整体布局方向等等，如果初始化时没有这个类的支持，CollectionView君是不知道该如何显示界面的。这里我们通过flowLayout设置一下界面朝向，就是ScrollView可以拖拽的方向，朝向一共两种，Vertical和Horizontal，垂直还是水平，垂直的话就是一般的可以上下滑动，cell是横向排列的；水平的话是可以左右滑动，cell是垂直排布的。这里采用Vertical：
 
-{% highlight Objective-C linenos %}
+{% highlight Objective-C %}
     [flowLayout setScrollDirection:UICollectionViewScrollDirectionVertical];
 {% endhighlight %}
 
 
 方法二，初始化时直接调用添加flowLayout，优点就是省了一行代码，能省为什么不省呢，总之在初始化时不能遗漏UICollectionViewFlowLayout这个类的对象。
 
-{% highlight Objective-C linenos %}
+{% highlight Objective-C %}
     UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
     UICollectionView *collectionView = [[UICollectionView alloc] initWithFrame:[UIScreen mainScreen].bounds collectionViewLayout:flowLayout];
     [self.view addSubview:collectionView];
@@ -61,14 +61,14 @@ tag: iOS
 
 * 然后不要忘了设置代理者，细节问题一定不要遗忘。
 
-{% highlight Objective-C linenos %}
+{% highlight Objective-C %}
     collectionView.delegate = self;
     collectionView.dataSource = self;
 {% endhighlight %}
 
 * 然后再对cell进行注册：
 
-{% highlight Objective-C linenos %}
+{% highlight Objective-C %}
     [collectionView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:@"cell"];
 {% endhighlight %}
 
@@ -76,7 +76,7 @@ tag: iOS
 
 * 协议中有两个方法是必须实现的，第一个方法是设置在一个Section中Item的数量，返回一个NSInteger类型的数字即可；第二个是初始化cell和决定cell的内容等，最后需要返回一个UICollectionViewCell 对象：
 
-{% highlight Objective-C linenos %}
+{% highlight Objective-C %}
 @required
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section;
@@ -87,13 +87,13 @@ tag: iOS
 
 * 这里值得说一下的是在cell初始化时调用的方法，这个方法会根据ReuseIdentifier直接去栈（queue）中寻找相应的cell，这也是CollectionView和TableView相同的栈存储机制决定的，因为在屏幕上显示时，只会初始化可以看到的相应数量的cell，而你看不到的cell信息是储存栈中的，在滑动中如果加载到才会从栈中把相应信息取出来显示在屏幕上：
 
-{% highlight Objective-C linenos %}
+{% highlight Objective-C %}
     UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"cell" forIndexPath:indexPath];
 {% endhighlight %}
 
  而且注意一下在给cell添加控件时是专门有一个View层的，最好添加在这一个View上，来看代码：
  
- {% highlight Objective-C linenos %}
+ {% highlight Objective-C %}
 // 定制cell
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     
@@ -124,7 +124,7 @@ tag: iOS
 
 * 我们来调用方法设置一下cell的大小，这里只是简单地附一个值，也可以根据屏幕大小或者你需要的相对大小来设定：
 
-{% highlight Objective-C linenos %}
+{% highlight Objective-C %}
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
     
     CGSize size = CGSizeMake(100, 150);
@@ -139,7 +139,7 @@ tag: iOS
 
 * 继续做一些微调什么的，这里都可以根据不同的Section来调整数据，我们把section换成两个而item换成每个section中有5个，这里注意一下section的编号也是从0开始的而不是1：
 
-{% highlight Objective-C linenos %}
+{% highlight Objective-C %}
 // 每组的cell的边界
 - (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout insetForSectionAtIndex:(NSInteger)section {
     
@@ -177,7 +177,7 @@ tag: iOS
 
 * item大小，行间距，列间距其实使用flowLayout也是可以设置的，至于用哪种方式就看你自己需求而定了：
 
-{% highlight Objective-C linenos %}
+{% highlight Objective-C %}
     [flowLayout setMinimumInteritemSpacing:0];
     [flowLayout setMinimumLineSpacing:0];
     [flowLayout setItemSize:CGSizeMake(100, 150)];
@@ -186,7 +186,7 @@ tag: iOS
 
 * 来利用代理方法让cell变得可点击并且会弹出AlertView窗口，第一个方法是在点击cell时会触发的回调方法，这里被点击的话会弹出一个窗口显示这是第几个cell；而第二个方法则决定这个cell是否可以点击，我们在这里做了一个判断；当然选择事件也是有很多情况的回调方法的，这里只是最基础的：
 
-{% highlight Objective-C linenos %}
+{% highlight Objective-C %}
 // 被选中时调用的方法
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     
@@ -220,14 +220,14 @@ tag: iOS
 
 * 其实步骤跟Cell有些类似，首先设置使用flowLayout设置它们的高度和宽度。
 
-{% highlight Objective-C linenos %}
+{% highlight Objective-C %}
     flowLayout.headerReferenceSize = CGSizeMake(screen.size.width, 25);
     flowLayout.footerReferenceSize = CGSizeMake(screen.size.width, 20);
 {% endhighlight %}
 
 * 然后进行方法的代理方法的编写：
 
-{% highlight Objective-C linenos %}
+{% highlight Objective-C %}
 - (UICollectionReusableView *) collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
 {
     UICollectionReusableView *reusableview = nil;
@@ -262,7 +262,7 @@ tag: iOS
 
 * 最后进行注册：
 
-{% highlight Objective-C linenos %}
+{% highlight Objective-C %}
     [collectionView registerClass:[UICollectionReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"HeaderView"];
     [collectionView registerClass:[UICollectionReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"FooterView"];
 {% endhighlight %}
@@ -273,7 +273,7 @@ tag: iOS
 ###四、showMenu
 * 首先来看需要实现的方法，第一个方法是决定哪些cell是可弹出menu的方法，这里直接返回YES，令所有的cell都可以弹出；第二个方法则是用来确定支持哪一种编辑方法，在CollectionView中仅支持三种编辑方法，粘贴paste，复制copy，剪切cut，稍后看代码；当点击了某个编辑方法，则会回调第三个方法来执行某些操作：
 
-{% highlight Objective-C linenos %}
+{% highlight Objective-C %}
 // These methods provide support for copy/paste actions on cells.
 // All three should be implemented if any are.
 - (BOOL)collectionView:(UICollectionView *)collectionView shouldShowMenuForItemAtIndexPath:(NSIndexPath *)indexPath;
