@@ -22,8 +22,3 @@ paginate:         5
 # Custom vars
 version:          1.0.0
 
-# duoshuo
-comments :
-    provider : duoshuo
-    duoshuo :
-      short_name : Leon-Kang
