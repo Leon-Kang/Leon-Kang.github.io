@@ -11,11 +11,11 @@ permalink:        pretty
 title:            LK
 tagline:          'What a wonderful world'
 description:      'We must be strong on the way of growth.'
-url:              http://Leon-Kang.github.io
+url:              https://Leon-Kang.github.io
 
 author:
   name:           'Leon-Kang'
-  url:            http://Leon-Kang.github.io
+  url:            https://Leon-Kang.github.io
 
 paginate:         5
 
