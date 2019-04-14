@@ -1,24 +1,24 @@
-# Dependencies
-markdown:         rdiscount
-highlighter:      rouge
+title: LK
+email: me@ojbk.dev
+description: 'We must be strong on the way of growth.'
+# baseurl: "" # the subpath of your site, e.g. /blog
+url: https://leonkang.com/
+github_username:  Leon-Kang
 
-#
-encoding:         "utf-8"
-# Permalinks
-permalink:        pretty
+# Build settings
+markdown: kramdown
+theme: minima
+plugins:
+  - jekyll-feed
 
-# Setup
-title:            LK
-tagline:          'What a wonderful world'
-description:      'We must be strong on the way of growth.'
-url:              https://Leon-Kang.github.io
-
-author:
-  name:           'Leon-Kang'
-  url:            https://Leon-Kang.github.io
-
-paginate:         5
-
-# Custom vars
-version:          1.0.0
-
+# Exclude from processing.
+# The following items will not be processed, by default. Create a custom list
+# to override the default setting.
+# exclude:
+#   - Gemfile
+#   - Gemfile.lock
+#   - node_modules
+#   - vendor/bundle/
+#   - vendor/cache/
+#   - vendor/gems/
+#   - vendor/ruby/

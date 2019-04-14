@@ -1,0 +1,1599 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.5">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2019-04-14T20:07:31+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">LK</title><subtitle>We must be strong on the way of growth.</subtitle><entry><title type="html">UICollectionView用法（Objective-C篇）</title><link href="http://localhost:4000/ios/2016/01/21/UICollectionView-OC.html" rel="alternate" type="text/html" title="UICollectionView用法（Objective-C篇）" /><published>2016-01-21T00:00:00+08:00</published><updated>2016-01-21T00:00:00+08:00</updated><id>http://localhost:4000/ios/2016/01/21/UICollectionView-OC</id><content type="html" xml:base="http://localhost:4000/ios/2016/01/21/UICollectionView-OC.html">&lt;blockquote&gt;
+  &lt;p&gt;UICollectionView是在iOS6.0以后登上舞台的，与UITableView比在一些地方十分方便和易用。这次先使用Objective-C语言使用一下，随后会使用swift来使用。先来看一下它的继承关系。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;一初始化和基本设置&quot;&gt;一、初始化和基本设置&lt;/h3&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;图片来自&lt;a href=&quot;https://developer.apple.com/library/prerelease/ios/documentation/UIKit/Reference/UICollectionView_class/&quot;&gt;开发者网站&lt;/a&gt;，大家也可以直接看官方文档，说的比较详细，主要的代理方法都有列出。我们可以看到它继承自UIScrollView，与UITableView是一样的，在布局时必须小心谨慎，不然可能因为很多原因发生异常。与UITableView相比，UICollectionView在布局上会更加灵活，下面来一一介绍。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://7xpo5x.com1.z0.glb.clouddn.com/UICollectionView01.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;首先遵守协议，这里需要遵守两个协议”&amp;lt;UICollectionViewDataSource,  UICollectionViewDelegateFlowLayout&amp;gt;”,第一个协议倾向于数据；第二个倾向于动作和布局，其实UICollectionViewDelegateFlowLayout是UICollectionViewDelegate的子协议，所以同时也遵守了UICollectionViewDelegate协议。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;在创建UICollectionView对象时需要注意方法的使用。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;方法一：如果还是像以往创建对象一样使用这种类似的方法，结果是会报错的，不要问我为什么知道的···：&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;    CGRect screen = [UIScreen mainScreen].bounds;
+    UICollectionView *collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 25, screen.size.width,
+    [self.view addSubview:collectionView];&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;报错原因，说在初始化时是需要布局参数的：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://7xpo5x.com1.z0.glb.clouddn.com/UICollectionView02.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;不过这种方法你只要补上：&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;    UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
+    collectionView.collectionViewLayout = flowLayout;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;这两句也是可以的，这个flowLayout到底有什么用呢？那用处可真的还比较大呢！来看UICollectionViewFlowLayout类的头文件：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://7xpo5x.com1.z0.glb.clouddn.com/UICollectionView03.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;里边包括了关于Header和Footer是否可见，大小如何，整体布局方向等等，如果初始化时没有这个类的支持，CollectionView君是不知道该如何显示界面的。这里我们通过flowLayout设置一下界面朝向，就是ScrollView可以拖拽的方向，朝向一共两种，Vertical和Horizontal，垂直还是水平，垂直的话就是一般的可以上下滑动，cell是横向排列的；水平的话是可以左右滑动，cell是垂直排布的。这里采用Vertical：&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;    [flowLayout setScrollDirection:UICollectionViewScrollDirectionVertical];&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;方法二，初始化时直接调用添加flowLayout，优点就是省了一行代码，能省为什么不省呢，总之在初始化时不能遗漏UICollectionViewFlowLayout这个类的对象。&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;    UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
+    UICollectionView *collectionView = [[UICollectionView alloc] initWithFrame:[UIScreen mainScreen].bounds collectionViewLayout:flowLayout];
+    [self.view addSubview:collectionView];&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;然后不要忘了设置代理者，细节问题一定不要遗忘。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;    collectionView.delegate = self;
+    collectionView.dataSource = self;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;然后再对cell进行注册：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;    [collectionView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:@&quot;cell&quot;];&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;###二、代理方法&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;协议中有两个方法是必须实现的，第一个方法是设置在一个Section中Item的数量，返回一个NSInteger类型的数字即可；第二个是初始化cell和决定cell的内容等，最后需要返回一个UICollectionViewCell 对象：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;@required
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section;
+
+// The cell that is returned must be retrieved from a call to -dequeueReusableCellWithReuseIdentifier:forIndexPath:
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;这里值得说一下的是在cell初始化时调用的方法，这个方法会根据ReuseIdentifier直接去栈（queue）中寻找相应的cell，这也是CollectionView和TableView相同的栈存储机制决定的，因为在屏幕上显示时，只会初始化可以看到的相应数量的cell，而你看不到的cell信息是储存栈中的，在滑动中如果加载到才会从栈中把相应信息取出来显示在屏幕上：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@&quot;cell&quot; forIndexPath:indexPath];&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;而且注意一下在给cell添加控件时是专门有一个View层的，最好添加在这一个View上，来看代码：&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;// 定制cell
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    
+    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@&quot;cell&quot; forIndexPath:indexPath];
+    
+    for (id subView in cell.contentView.subviews) {
+        [subView removeFromSuperview];
+    }
+    
+    cell.backgroundColor = [UIColor greenColor];
+    
+    UILabel *lable = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, cell.frame.size.width, 20)];
+    lable.textAlignment = NSTextAlignmentCenter;
+    
+    [cell.contentView addSubview:lable];
+    
+    lable.text = [NSString stringWithFormat:@&quot;%ld&quot;, (long)indexPath.row];
+    
+    
+    return cell;
+}&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;现在运行的效果见图：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://7xpo5x.com1.z0.glb.clouddn.com/UICollectionView04.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;我们来调用方法设置一下cell的大小，这里只是简单地附一个值，也可以根据屏幕大小或者你需要的相对大小来设定：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    
+    CGSize size = CGSizeMake(100, 150);
+    
+    return size;
+}&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;效果图：
+&lt;img src=&quot;http://7xpo5x.com1.z0.glb.clouddn.com/UICollectionView05.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;继续做一些微调什么的，这里都可以根据不同的Section来调整数据，我们把section换成两个而item换成每个section中有5个，这里注意一下section的编号也是从0开始的而不是1：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;// 每组的cell的边界
+- (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout insetForSectionAtIndex:(NSInteger)section {
+    
+    UIEdgeInsets edgeInsets = UIEdgeInsetsMake(0, 20, 0, 20);
+    
+    if (section == 1) {
+        edgeInsets = UIEdgeInsetsMake(0, 10, 0, 10);
+    }
+    
+    return edgeInsets;
+}
+
+// 最小行间距
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section {
+    
+    CGFloat minL = 0;
+    
+    if (section == 1) {
+        minL = 5;
+    }
+    
+    return minL;
+}
+
+// 最小列间距
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section {
+    
+    CGFloat minI = 0.5;
+    
+    return minI;
+}&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://7xpo5x.com1.z0.glb.clouddn.com/UICollectionView07.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;item大小，行间距，列间距其实使用flowLayout也是可以设置的，至于用哪种方式就看你自己需求而定了：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;    [flowLayout setMinimumInteritemSpacing:0];
+    [flowLayout setMinimumLineSpacing:0];
+    [flowLayout setItemSize:CGSizeMake(100, 150)];&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;来利用代理方法让cell变得可点击并且会弹出AlertView窗口，第一个方法是在点击cell时会触发的回调方法，这里被点击的话会弹出一个窗口显示这是第几个cell；而第二个方法则决定这个cell是否可以点击，我们在这里做了一个判断；当然选择事件也是有很多情况的回调方法的，这里只是最基础的：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;// 被选中时调用的方法
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    
+    NSString *msg = [NSString stringWithFormat:@&quot;It's %ld&quot;, (long)indexPath.row];
+    
+    UIAlertController *alertC = [UIAlertController alertControllerWithTitle:@&quot;Hello&quot; message:msg preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@&quot;cancel&quot; style:UIAlertActionStyleCancel handler:nil];
+    [alertC addAction:cancel];
+    [self presentViewController:alertC animated:YES completion:nil];
+    
+}
+
+// 是否可以被选择
+- (BOOL)collectionView:(UICollectionView *)collectionView shouldSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    
+    if ((indexPath.row % 2) == 1) {
+        return YES;
+    }
+    return NO;
+}&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;效果如图：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://7xpo5x.com1.z0.glb.clouddn.com/UICollectionView08.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;###三、Header和Footer&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Header和Footer也是CollectionView和TableView所不一样的地方。在CollectionView中可以直接使用UICollectionReusableView这个类创建Header和Footer，也可以自己使用xib做定制，在页面布局上是十分强大的。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;其实步骤跟Cell有些类似，首先设置使用flowLayout设置它们的高度和宽度。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;    flowLayout.headerReferenceSize = CGSizeMake(screen.size.width, 25);
+    flowLayout.footerReferenceSize = CGSizeMake(screen.size.width, 20);&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;然后进行方法的代理方法的编写：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;- (UICollectionReusableView *) collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
+{
+    UICollectionReusableView *reusableview = nil;
+    UILabel *lable = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, 20)];
+    lable.textAlignment = NSTextAlignmentCenter;
+    
+    if (kind == UICollectionElementKindSectionHeader)
+    {
+        UICollectionReusableView *headerView = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@&quot;HeaderView&quot; forIndexPath:indexPath];
+        
+        lable.textColor = [UIColor blueColor];
+        lable.text = @&quot;HeaderView&quot;;
+        headerView.backgroundColor = [UIColor orangeColor];
+        [headerView addSubview:lable];
+        reusableview = headerView;
+    }
+    
+    if (kind == UICollectionElementKindSectionFooter)
+    {
+        UICollectionReusableView *footerview = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@&quot;FooterView&quot; forIndexPath:indexPath];
+        
+        lable.textColor = [UIColor whiteColor];
+        lable.text = @&quot;FooterView&quot;;
+        footerview.backgroundColor = [UIColor blackColor];
+        [footerview addSubview:lable];
+        reusableview = footerview;
+    }
+    
+    return reusableview;
+}&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;最后进行注册：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;    [collectionView registerClass:[UICollectionReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@&quot;HeaderView&quot;];
+    [collectionView registerClass:[UICollectionReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@&quot;FooterView&quot;];&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;效果如图，这里只是做个示范，所以很丑，请不要在意：
+&lt;img src=&quot;http://7xpo5x.com1.z0.glb.clouddn.com/UICollectionView11.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;###四、showMenu&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;首先来看需要实现的方法，第一个方法是决定哪些cell是可弹出menu的方法，这里直接返回YES，令所有的cell都可以弹出；第二个方法则是用来确定支持哪一种编辑方法，在CollectionView中仅支持三种编辑方法，粘贴paste，复制copy，剪切cut，稍后看代码；当点击了某个编辑方法，则会回调第三个方法来执行某些操作：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;// These methods provide support for copy/paste actions on cells.
+// All three should be implemented if any are.
+- (BOOL)collectionView:(UICollectionView *)collectionView shouldShowMenuForItemAtIndexPath:(NSIndexPath *)indexPath;
+- (BOOL)collectionView:(UICollectionView *)collectionView canPerformAction:(SEL)action forItemAtIndexPath:(NSIndexPath *)indexPath withSender:(nullable id)sender;
+- (void)collectionView:(UICollectionView *)collectionView performAction:(SEL)action forItemAtIndexPath:(NSIndexPath *)indexPath withSender:(nullable id)sender;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;点击效果如图，因为这里对第三个方法还没有写入任何内容，所以点击编辑方法时还没有任何效果:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://7xpo5x.com1.z0.glb.clouddn.com/UICollectionView12.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;###&lt;a href=&quot;https://github.com/Leon-Kang/UICollectionView&quot;&gt;代码在这里&lt;/a&gt;&lt;/p&gt;</content><author><name>Leon-Kang</name></author><category term="iOS" /><summary type="html">UICollectionView是在iOS6.0以后登上舞台的，与UITableView比在一些地方十分方便和易用。这次先使用Objective-C语言使用一下，随后会使用swift来使用。先来看一下它的继承关系。</summary></entry><entry><title type="html">SQL语句</title><link href="http://localhost:4000/ios/2016/01/17/SQL%E8%AF%AD%E5%8F%A5.html" rel="alternate" type="text/html" title="SQL语句" /><published>2016-01-17T00:00:00+08:00</published><updated>2016-01-17T00:00:00+08:00</updated><id>http://localhost:4000/ios/2016/01/17/SQL%E8%AF%AD%E5%8F%A5</id><content type="html" xml:base="http://localhost:4000/ios/2016/01/17/SQL%E8%AF%AD%E5%8F%A5.html">&lt;p&gt;&lt;a href=&quot;http://www.cnblogs.com/yubinfeng/archive/2010/11/02/1867386.html&quot;&gt;转载&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;##经典SQL语句大全&lt;/p&gt;
+
+&lt;p&gt;###一、基础&lt;/p&gt;
+
+&lt;p&gt;1、说明：创建数据库
+CREATE DATABASE database-name&lt;/p&gt;
+
+&lt;p&gt;2、说明：删除数据库
+drop database dbname&lt;/p&gt;
+
+&lt;p&gt;3、说明：备份sql server
+— 创建 备份数据的 device
+USE master
+EXEC sp_addumpdevice ‘disk’, ‘testBack’, ‘c:\mssql7backup\MyNwind_1.dat’
+— 开始 备份
+BACKUP DATABASE pubs TO testBack&lt;/p&gt;
+
+&lt;p&gt;4、说明：创建新表
+create table tabname(col1 type1 [not null] [primary key],col2 type2 [not null],..)&lt;/p&gt;
+
+&lt;p&gt;根据已有的表创建新表： 
+A：create table tab_new like tab_old (使用旧表创建新表)
+B：create table tab_new as select col1,col2… from tab_old definition only&lt;/p&gt;
+
+&lt;p&gt;5、说明：删除新表
+drop table tabname&lt;/p&gt;
+
+&lt;p&gt;6、说明：增加一个列
+Alter table tabname add column col type
+注：列增加后将不能删除。DB2中列加上后数据类型也不能改变，唯一能改变的是增加varchar类型的长度。&lt;/p&gt;
+
+&lt;p&gt;7、说明：添加主键： Alter table tabname add primary key(col) 
+说明：删除主键： Alter table tabname drop primary key(col)&lt;/p&gt;
+
+&lt;p&gt;8、说明：创建索引：create [unique] index idxname on tabname(col….) 
+删除索引：drop index idxname
+注：索引是不可更改的，想更改必须删除重新建。&lt;/p&gt;
+
+&lt;p&gt;9、说明：创建视图：create view viewname as select statement 
+删除视图：drop view viewname&lt;/p&gt;
+
+&lt;p&gt;10、说明：几个简单的基本的sql语句
+选择：select * from table1 where 范围
+插入：insert into table1(field1,field2) values(value1,value2)
+删除：delete from table1 where 范围
+更新：update table1 set field1=value1 where 范围
+查找：select * from table1 where field1 like ’%value1%’ —like的语法很精妙，查资料!
+排序：select * from table1 order by field1,field2 [desc]
+总数：select count as totalcount from table1
+求和：select sum(field1) as sumvalue from table1
+平均：select avg(field1) as avgvalue from table1
+最大：select max(field1) as maxvalue from table1
+最小：select min(field1) as minvalue from table1&lt;/p&gt;
+
+&lt;p&gt;11、说明：几个高级查询运算词
+A： UNION 运算符 
+UNION 运算符通过组合其他两个结果表（例如 TABLE1 和 TABLE2）并消去表中任何重复行而派生出一个结果表。当 ALL 随 UNION 一起使用时（即 UNION ALL），不消除重复行。两种情况下，派生表的每一行不是来自 TABLE1 就是来自 TABLE2。 
+B： EXCEPT 运算符 
+EXCEPT运算符通过包括所有在 TABLE1 中但不在 TABLE2 中的行并消除所有重复行而派生出一个结果表。当 ALL 随 EXCEPT 一起使用时 (EXCEPT ALL)，不消除重复行。
+C： INTERSECT 运算符
+INTERSECT运算符通过只包括 TABLE1 和 TABLE2 中都有的行并消除所有重复行而派生出一个结果表。当 ALL随 INTERSECT 一起使用时 (INTERSECT ALL)，不消除重复行。 
+注：使用运算词的几个查询结果行必须是一致的。&lt;/p&gt;
+
+&lt;p&gt;12、说明：使用外连接 
+A、left （outer） join： 
+左外连接（左连接）：结果集几包括连接表的匹配行，也包括左连接表的所有行。 
+SQL: select a.a, a.b, a.c, b.c, b.d, b.f from a LEFT OUT JOIN b ON a.a = b.c
+B：right （outer） join: 
+右外连接(右连接)：结果集既包括连接表的匹配连接行，也包括右连接表的所有行。 
+C：full/cross （outer） join： 
+全外连接：不仅包括符号连接表的匹配行，还包括两个连接表中的所有记录。&lt;/p&gt;
+
+&lt;p&gt;13、分组:Group by:
+   一张表，一旦分组 完成后，查询后只能得到组相关的信息。
+    组相关的信息：（统计信息） count,sum,max,min,avg  分组的标准)
+    在SQLServer中分组时：不能以text,ntext,image类型的字段作为分组依据
+   在selecte统计函数中的字段，不能和普通的字段放在一起；&lt;/p&gt;
+
+&lt;p&gt;14、对数据库进行操作：
+   分离数据库： sp_detach_db;附加数据库：sp_attach_db 后接表明，附加需要完整的路径名&lt;/p&gt;
+
+&lt;p&gt;15、如何修改数据库的名称:
+sp_renamedb ‘old_name’, ‘new_name’&lt;/p&gt;
+
+&lt;p&gt;###二、提升&lt;/p&gt;
+
+&lt;p&gt;1、说明：复制表(只复制结构,源表名：a 新表名：b) (Access可用)
+法一：select * into b from a where 1&amp;lt;&amp;gt;1（仅用于SQlServer）
+法二：select top 0 * into b from a&lt;/p&gt;
+
+&lt;p&gt;2、说明：拷贝表(拷贝数据,源表名：a 目标表名：b) (Access可用)
+insert into b(a, b, c) select d,e,f from b;&lt;/p&gt;
+
+&lt;p&gt;3、说明：跨数据库之间表的拷贝(具体数据使用绝对路径) (Access可用)
+insert into b(a, b, c) select d,e,f from b in ‘具体数据库’ where 条件
+例子：..from b in ‘“&amp;amp;Server.MapPath(“.”)&amp;amp;”\data.mdb” &amp;amp;”’ where..&lt;/p&gt;
+
+&lt;p&gt;4、说明：子查询(表名1：a 表名2：b)
+select a,b,c from a where a IN (select d from b ) 或者: select a,b,c from a where a IN (1,2,3)&lt;/p&gt;
+
+&lt;p&gt;5、说明：显示文章、提交人和最后回复时间
+select a.title,a.username,b.adddate from table a,(select max(adddate) adddate from table where table.title=a.title) b&lt;/p&gt;
+
+&lt;p&gt;6、说明：外连接查询(表名1：a 表名2：b)
+select a.a, a.b, a.c, b.c, b.d, b.f from a LEFT OUT JOIN b ON a.a = b.c&lt;/p&gt;
+
+&lt;p&gt;7、说明：在线视图查询(表名1：a )
+select * from (SELECT a,b,c FROM a) T where t.a &amp;gt; 1;&lt;/p&gt;
+
+&lt;p&gt;8、说明：between的用法,between限制查询数据范围时包括了边界值,not between不包括
+select * from table1 where time between time1 and time2
+select a,b,c, from table1 where a not between 数值1 and 数值2&lt;/p&gt;
+
+&lt;p&gt;9、说明：in 的使用方法
+select * from table1 where a [not] in (‘值1’,’值2’,’值4’,’值6’)&lt;/p&gt;
+
+&lt;p&gt;10、说明：两张关联表，删除主表中已经在副表中没有的信息 
+delete from table1 where not exists ( select * from table2 where table1.field1=table2.field1 )&lt;/p&gt;
+
+&lt;p&gt;11、说明：四表联查问题：
+select * from a left inner join b on a.a=b.b right inner join c on a.a=c.c inner join d on a.a=d.d where …..&lt;/p&gt;
+
+&lt;p&gt;12、说明：日程安排提前五分钟提醒 
+SQL: select * from 日程安排 where datediff(‘minute’,f开始时间,getdate())&amp;gt;5&lt;/p&gt;
+
+&lt;p&gt;13、说明：一条sql 语句搞定数据库分页
+select top 10 b.* from (select top 20 主键字段,排序字段 from 表名 order by 排序字段 desc) a,表名 b where b.主键字段 = a.主键字段 order by a.排序字段
+具体实现：
+关于数据库分页：
+  declare @start int,@end int
+  @sql  nvarchar(600)
+  set @sql=’select top’+str(@end-@start+1)+’+from T where rid not in(select top’+str(@str-1)+’Rid from T where Rid&amp;gt;-1)’
+  exec sp_executesql @sql&lt;/p&gt;
+
+&lt;p&gt;注意：在top后不能直接跟一个变量，所以在实际应用中只有这样的进行特殊的处理。Rid为一个标识列，如果top后还有具体的字段，这样做是非常有好处的。因为这样可以避免 top的字段如果是逻辑索引的，查询的结果后实际表中的不一致（逻辑索引中的数据有可能和数据表中的不一致，而查询时如果处在索引则首先查询索引）&lt;/p&gt;
+
+&lt;p&gt;14、说明：前10条记录
+select top 10 * form table1 where 范围&lt;/p&gt;
+
+&lt;p&gt;15、说明：选择在每一组b值相同的数据中对应的a最大的记录的所有信息(类似这样的用法可以用于论坛每月排行榜,每月热销产品分析,按科目成绩排名,等等.)
+select a,b,c from tablename ta where a=(select max(a) from tablename tb where tb.b=ta.b)&lt;/p&gt;
+
+&lt;p&gt;16、说明：包括所有在 TableA中但不在 TableB和TableC中的行并消除所有重复行而派生出一个结果表
+(select a from tableA ) except (select a from tableB) except (select a from tableC)&lt;/p&gt;
+
+&lt;p&gt;17、说明：随机取出10条数据
+select top 10 * from tablename order by newid()&lt;/p&gt;
+
+&lt;p&gt;18、说明：随机选择记录
+select newid()&lt;/p&gt;
+
+&lt;p&gt;19、说明：删除重复记录
+1),delete from tablename where id not in (select max(id) from tablename group by col1,col2,…)
+2),select distinct * into temp from tablename
+  delete from tablename
+  insert into tablename select * from temp
+评价： 这种操作牵连大量的数据的移动，这种做法不适合大容量但数据操作
+3),例如：在一个外部表中导入数据，由于某些原因第一次只导入了一部分，但很难判断具体位置，这样只有在下一次全部导入，这样也就产生好多重复的字段，怎样删除重复字段&lt;/p&gt;
+
+&lt;p&gt;alter table tablename
+–添加一个自增列
+add  column_b int identity(1,1)
+ delete from tablename where column_b not in(
+select max(column_b)  from tablename group by column1,column2,…)
+alter table tablename drop column column_b&lt;/p&gt;
+
+&lt;p&gt;20、说明：列出数据库里所有的表名
+select name from sysobjects where type=’U’ // U代表用户&lt;/p&gt;
+
+&lt;p&gt;21、说明：列出表里的所有的列名
+select name from syscolumns where id=object_id(‘TableName’)&lt;/p&gt;
+
+&lt;p&gt;22、说明：列示type、vender、pcs字段，以type字段排列，case可以方便地实现多重选择，类似select 中的case。
+select type,sum(case vender when ‘A’ then pcs else 0 end),sum(case vender when ‘C’ then pcs else 0 end),sum(case vender when ‘B’ then pcs else 0 end) FROM tablename group by type
+显示结果：
+type vender pcs
+电脑 A 1
+电脑 A 1
+光盘 B 2
+光盘 A 2
+手机 B 3
+手机 C 3&lt;/p&gt;
+
+&lt;p&gt;23、说明：初始化表table1&lt;/p&gt;
+
+&lt;p&gt;TRUNCATE TABLE table1&lt;/p&gt;
+
+&lt;p&gt;24、说明：选择从10到15的记录
+select top 5 * from (select top 15 * from table order by id asc) table_别名 order by id desc&lt;/p&gt;
+
+&lt;p&gt;###三、技巧&lt;/p&gt;
+
+&lt;p&gt;1、1=1，1=2的使用，在SQL语句组合时用的较多&lt;/p&gt;
+
+&lt;p&gt;“where 1=1” 是表示选择全部    “where 1=2”全部不选，
+如：
+if @strWhere !=’’ 
+begin
+set @strSQL = ‘select count(&lt;em&gt;) as Total from [’ + @tblName + ‘] where ‘ + @strWhere 
+end
+else 
+begin
+set @strSQL = ‘select count(&lt;/em&gt;) as Total from [’ + @tblName + ‘]’ 
+end&lt;/p&gt;
+
+&lt;p&gt;我们可以直接写成&lt;/p&gt;
+
+&lt;p&gt;错误！未找到目录项。
+set @strSQL = ‘select count(*) as Total from [’ + @tblName + ‘] where 1=1 安定 ‘+ @strWhere&lt;/p&gt;
+
+&lt;p&gt;2、收缩数据库
+–重建索引
+DBCC REINDEX
+DBCC INDEXDEFRAG
+–收缩数据和日志
+DBCC SHRINKDB
+DBCC SHRINKFILE&lt;/p&gt;
+
+&lt;p&gt;3、压缩数据库
+dbcc shrinkdatabase(dbname)&lt;/p&gt;
+
+&lt;p&gt;4、转移数据库给新用户以已存在用户权限
+exec sp_change_users_login ‘update_one’,’newname’,’oldname’
+go&lt;/p&gt;
+
+&lt;p&gt;5、检查备份集
+RESTORE VERIFYONLY from disk=’E:\dvbbs.bak’&lt;/p&gt;
+
+&lt;p&gt;6、修复数据库
+ALTER DATABASE [dvbbs] SET SINGLE_USER
+GO
+DBCC CHECKDB(‘dvbbs’,repair_allow_data_loss) WITH TABLOCK
+GO
+ALTER DATABASE [dvbbs] SET MULTI_USER
+GO&lt;/p&gt;
+
+&lt;p&gt;7、日志清除
+SET NOCOUNT ON
+DECLARE @LogicalFileName sysname,
+ @MaxMinutes INT,
+ @NewSize INT&lt;/p&gt;
+
+&lt;p&gt;USE tablename – 要操作的数据库名
+SELECT  @LogicalFileName = ‘tablename_log’, – 日志文件名
+@MaxMinutes = 10, – Limit on time allowed to wrap log.
+ @NewSize = 1  – 你想设定的日志文件的大小(M)&lt;/p&gt;
+
+&lt;p&gt;Setup / initialize
+DECLARE @OriginalSize int
+SELECT @OriginalSize = size 
+ FROM sysfiles
+ WHERE name = @LogicalFileName
+SELECT ‘Original Size of ‘ + db_name() + ‘ LOG is ‘ + 
+ CONVERT(VARCHAR(30),@OriginalSize) + ‘ 8K pages or ‘ + 
+ CONVERT(VARCHAR(30),(@OriginalSize*8/1024)) + ‘MB’
+ FROM sysfiles
+ WHERE name = @LogicalFileName
+CREATE TABLE DummyTrans
+ (DummyColumn char (8000) not null)&lt;/p&gt;
+
+&lt;p&gt;DECLARE @Counter    INT,
+ @StartTime DATETIME,
+ @TruncLog   VARCHAR(255)
+SELECT @StartTime = GETDATE(),
+ @TruncLog = ‘BACKUP LOG ‘ + db_name() + ‘ WITH TRUNCATE_ONLY’&lt;/p&gt;
+
+&lt;p&gt;DBCC SHRINKFILE (@LogicalFileName, @NewSize)
+EXEC (@TruncLog)
+– Wrap the log if necessary.
+WHILE @MaxMinutes &amp;gt; DATEDIFF (mi, @StartTime, GETDATE()) – time has not expired
+ AND @OriginalSize = (SELECT size FROM sysfiles WHERE name = @LogicalFileName)&lt;br /&gt;
+ AND (@OriginalSize * 8 /1024) &amp;gt; @NewSize&lt;br /&gt;
+ BEGIN – Outer loop.
+SELECT @Counter = 0
+ WHILE   ((@Counter &amp;lt; @OriginalSize / 16) AND (@Counter &amp;lt; 50000))
+ BEGIN – update
+ INSERT DummyTrans VALUES (‘Fill Log’) DELETE DummyTrans
+ SELECT @Counter = @Counter + 1
+ END
+ EXEC (@TruncLog)&lt;br /&gt;
+ END
+SELECT ‘Final Size of ‘ + db_name() + ‘ LOG is ‘ +
+ CONVERT(VARCHAR(30),size) + ‘ 8K pages or ‘ + 
+ CONVERT(VARCHAR(30),(size*8/1024)) + ‘MB’
+ FROM sysfiles 
+ WHERE name = @LogicalFileName
+DROP TABLE DummyTrans
+SET NOCOUNT OFF&lt;/p&gt;
+
+&lt;p&gt;8、说明：更改某个表
+exec sp_changeobjectowner ‘tablename’,’dbo’&lt;/p&gt;
+
+&lt;p&gt;9、存储更改全部表&lt;/p&gt;
+
+&lt;p&gt;CREATE PROCEDURE dbo.User_ChangeObjectOwnerBatch
+@OldOwner as NVARCHAR(128),
+@NewOwner as NVARCHAR(128)
+AS&lt;/p&gt;
+
+&lt;p&gt;DECLARE @Name    as NVARCHAR(128)
+DECLARE @Owner   as NVARCHAR(128)
+DECLARE @OwnerName   as NVARCHAR(128)&lt;/p&gt;
+
+&lt;p&gt;DECLARE curObject CURSOR FOR 
+select ‘Name’    = name,
+   ‘Owner’    = user_name(uid)
+from sysobjects
+where user_name(uid)=@OldOwner
+order by name&lt;/p&gt;
+
+&lt;p&gt;OPEN   curObject
+FETCH NEXT FROM curObject INTO @Name, @Owner
+WHILE(@@FETCH_STATUS=0)
+BEGIN   &lt;br /&gt;
+if @Owner=@OldOwner 
+begin
+   set @OwnerName = @OldOwner + ‘.’ + rtrim(@Name)
+   exec sp_changeobjectowner @OwnerName, @NewOwner
+end
+– select @name,@NewOwner,@OldOwner&lt;/p&gt;
+
+&lt;p&gt;FETCH NEXT FROM curObject INTO @Name, @Owner
+END&lt;/p&gt;
+
+&lt;p&gt;close curObject
+deallocate curObject
+GO&lt;/p&gt;
+
+&lt;p&gt;10、SQL SERVER中直接循环写入数据
+declare @i int
+set @i=1
+while @i&amp;lt;30
+begin
+    insert into test (userid) values(@i)
+    set @i=@i+1
+end
+案例：
+有如下表，要求就裱中所有沒有及格的成績，在每次增長0.1的基礎上，使他們剛好及格:
+    Name     score
+    Zhangshan   80
+    Lishi       59
+    Wangwu      50
+    Songquan    69
+while((select min(score) from tb_table)&amp;lt;60)
+begin
+update tb_table set score =score*1.01
+where score&amp;lt;60
+if  (select min(score) from tb_table)&amp;gt;60
+  break
+ else
+    continue
+end&lt;/p&gt;
+
+&lt;p&gt;##数据开发-经典&lt;/p&gt;
+
+&lt;p&gt;1.按姓氏笔画排序:
+Select * From TableName Order By CustomerName Collate Chinese_PRC_Stroke_ci_as //从少到多&lt;/p&gt;
+
+&lt;p&gt;2.数据库加密:
+select encrypt(‘原始密码’)
+select pwdencrypt(‘原始密码’)
+select pwdcompare(‘原始密码’,’加密后密码’) = 1–相同；否则不相同 encrypt(‘原始密码’)
+select pwdencrypt(‘原始密码’)
+select pwdcompare(‘原始密码’,’加密后密码’) = 1–相同；否则不相同&lt;/p&gt;
+
+&lt;p&gt;3.取回表中字段:
+declare @list varchar(1000),
+@sql nvarchar(1000) 
+select @list=@list+’,’+b.name from sysobjects a,syscolumns b where a.id=b.id and a.name=’表A’
+set @sql=’select ‘+right(@list,len(@list)-1)+’ from 表A’ 
+exec (@sql)&lt;/p&gt;
+
+&lt;p&gt;4.查看硬盘分区:
+EXEC master..xp_fixeddrives&lt;/p&gt;
+
+&lt;p&gt;5.比较A,B表是否相等:
+if (select checksum_agg(binary_checksum(&lt;em&gt;)) from A)
+     =
+    (select checksum_agg(binary_checksum(&lt;/em&gt;)) from B)
+print ‘相等’
+else
+print ‘不相等’&lt;/p&gt;
+
+&lt;p&gt;6.杀掉所有的事件探察器进程:
+DECLARE hcforeach CURSOR GLOBAL FOR SELECT ‘kill ‘+RTRIM(spid) FROM master.dbo.sysprocesses
+WHERE program_name IN(‘SQL profiler’,N’SQL 事件探查器’)
+EXEC sp_msforeach_worker ‘?’&lt;/p&gt;
+
+&lt;p&gt;7.记录搜索:
+开头到N条记录
+Select Top N * From 表&lt;/p&gt;
+
+&lt;p&gt;N到M条记录(要有主索引ID)
+Select Top M-N * From 表 Where ID in (Select Top M ID From 表) Order by ID   Desc&lt;/p&gt;
+
+&lt;p&gt;N到结尾记录
+Select Top N * From 表 Order by ID Desc
+案例
+例如1：一张表有一万多条记录，表的第一个字段 RecID 是自增长字段， 写一个SQL语句， 找出表的第31到第40个记录。
+ select top 10 recid from A where recid not  in(select top 30 recid from A)
+分析：如果这样写会产生某些问题，如果recid在表中存在逻辑索引。
+    select top 10 recid from A where……是从索引中查找，而后面的select top 30 recid from A则在数据表中查找，这样由于索引中的顺序有可能和数据表中的不一致，这样就导致查询到的不是本来的欲得到的数据。
+解决方案
+1，用order by select top 30 recid from A order by ricid 如果该字段不是自增长，就会出现问题
+2，在那个子查询中也加条件：select top 30 recid from A where recid&amp;gt;-1
+例2：查询表中的最后以条记录，并不知道这个表共有多少数据,以及表结构。
+set @s = ‘select top 1 * from T   where pid not in (select top ‘ + str(@count-1) + ‘ pid  from  T)’
+print @s      exec  sp_executesql  @s&lt;/p&gt;
+
+&lt;p&gt;9：获取当前数据库中的所有用户表
+select Name from sysobjects where xtype=’u’ and status&amp;gt;=0&lt;/p&gt;
+
+&lt;p&gt;10：获取某一个表的所有字段
+select name from syscolumns where id=object_id(‘表名’)&lt;/p&gt;
+
+&lt;p&gt;select name from syscolumns where id in (select id from sysobjects where type = ‘u’ and name = ‘表名’)&lt;/p&gt;
+
+&lt;p&gt;两种方式的效果相同&lt;/p&gt;
+
+&lt;p&gt;11：查看与某一个表相关的视图、存储过程、函数
+select a.* from sysobjects a, syscomments b where a.id = b.id and b.text like ‘%表名%’&lt;/p&gt;
+
+&lt;p&gt;12：查看当前数据库中所有存储过程
+select name as 存储过程名称 from sysobjects where xtype=’P’&lt;/p&gt;
+
+&lt;p&gt;13：查询用户创建的所有数据库
+select * from master..sysdatabases D where sid not in(select sid from master..syslogins where name=’sa’)
+或者
+select dbid, name AS DB_NAME from master..sysdatabases where sid &amp;lt;&amp;gt; 0x01&lt;/p&gt;
+
+&lt;p&gt;14：查询某一个表的字段和数据类型
+select column_name,data_type from information_schema.columns
+where table_name = ‘表名’&lt;/p&gt;
+
+&lt;p&gt;15：不同服务器数据库之间的数据操作&lt;/p&gt;
+
+&lt;p&gt;–创建链接服务器&lt;/p&gt;
+
+&lt;p&gt;exec sp_addlinkedserver   ‘ITSV ‘, ‘ ‘, ‘SQLOLEDB ‘, ‘远程服务器名或ip地址 ‘&lt;/p&gt;
+
+&lt;p&gt;exec sp_addlinkedsrvlogin  ‘ITSV ‘, ‘false ‘,null, ‘用户名 ‘, ‘密码 ‘&lt;/p&gt;
+
+&lt;p&gt;–查询示例&lt;/p&gt;
+
+&lt;p&gt;select * from ITSV.数据库名.dbo.表名&lt;/p&gt;
+
+&lt;p&gt;–导入示例&lt;/p&gt;
+
+&lt;p&gt;select * into 表 from ITSV.数据库名.dbo.表名&lt;/p&gt;
+
+&lt;p&gt;–以后不再使用时删除链接服务器&lt;/p&gt;
+
+&lt;p&gt;exec sp_dropserver  ‘ITSV ‘, ‘droplogins ‘&lt;/p&gt;
+
+&lt;p&gt;##连接远程/局域网数据(openrowset/openquery/opendatasource)&lt;/p&gt;
+
+&lt;p&gt;–1、openrowset&lt;/p&gt;
+
+&lt;p&gt;–查询示例&lt;/p&gt;
+
+&lt;p&gt;select * from openrowset( ‘SQLOLEDB ‘, ‘sql服务器名 ‘; ‘用户名 ‘; ‘密码 ‘,数据库名.dbo.表名)&lt;/p&gt;
+
+&lt;p&gt;–生成本地表&lt;/p&gt;
+
+&lt;p&gt;select * into 表 from openrowset( ‘SQLOLEDB ‘, ‘sql服务器名 ‘; ‘用户名 ‘; ‘密码 ‘,数据库名.dbo.表名)&lt;/p&gt;
+
+&lt;p&gt;–把本地表导入远程表&lt;/p&gt;
+
+&lt;p&gt;insert openrowset( ‘SQLOLEDB ‘, ‘sql服务器名 ‘; ‘用户名 ‘; ‘密码 ‘,数据库名.dbo.表名)&lt;/p&gt;
+
+&lt;p&gt;select *from 本地表&lt;/p&gt;
+
+&lt;p&gt;–更新本地表&lt;/p&gt;
+
+&lt;p&gt;update b&lt;/p&gt;
+
+&lt;p&gt;set b.列A=a.列A&lt;/p&gt;
+
+&lt;p&gt;from openrowset( ‘SQLOLEDB ‘, ‘sql服务器名 ‘; ‘用户名 ‘; ‘密码 ‘,数据库名.dbo.表名)as a inner join 本地表 b&lt;/p&gt;
+
+&lt;p&gt;on a.column1=b.column1&lt;/p&gt;
+
+&lt;p&gt;–openquery用法需要创建一个连接&lt;/p&gt;
+
+&lt;p&gt;–首先创建一个连接创建链接服务器&lt;/p&gt;
+
+&lt;p&gt;exec sp_addlinkedserver   ‘ITSV ‘, ‘ ‘, ‘SQLOLEDB ‘, ‘远程服务器名或ip地址 ‘&lt;/p&gt;
+
+&lt;p&gt;–查询&lt;/p&gt;
+
+&lt;p&gt;select * FROM openquery(ITSV,  ‘SELECT *  FROM 数据库.dbo.表名 ‘)&lt;/p&gt;
+
+&lt;p&gt;–把本地表导入远程表&lt;/p&gt;
+
+&lt;p&gt;insert openquery(ITSV,  ‘SELECT *  FROM 数据库.dbo.表名 ‘)&lt;/p&gt;
+
+&lt;p&gt;select * from 本地表&lt;/p&gt;
+
+&lt;p&gt;–更新本地表&lt;/p&gt;
+
+&lt;p&gt;update b&lt;/p&gt;
+
+&lt;p&gt;set b.列B=a.列B&lt;/p&gt;
+
+&lt;p&gt;FROM openquery(ITSV,  ‘SELECT * FROM 数据库.dbo.表名 ‘) as a&lt;/p&gt;
+
+&lt;p&gt;inner join 本地表 b on a.列A=b.列A&lt;/p&gt;
+
+&lt;p&gt;–3、opendatasource/openrowset&lt;/p&gt;
+
+&lt;p&gt;SELECT * FROM   opendatasource( ‘SQLOLEDB ‘,  ‘Data Source=ip/ServerName;User ID=登陆名;Password=密码 ‘ ).test.dbo.roy_ta&lt;/p&gt;
+
+&lt;p&gt;–把本地表导入远程表&lt;/p&gt;
+
+&lt;p&gt;insert opendatasource( ‘SQLOLEDB ‘,  ‘Data Source=ip/ServerName;User ID=登陆名;Password=密码 ‘).数据库.dbo.表名&lt;/p&gt;
+
+&lt;p&gt;select * from 本地表&lt;/p&gt;</content><author><name>yubinfeng</name></author><category term="SQL" /><summary type="html">转载</summary></entry><entry><title type="html">retain与copy的区别</title><link href="http://localhost:4000/ios/2016/01/17/retainAndCopy.html" rel="alternate" type="text/html" title="retain与copy的区别" /><published>2016-01-17T00:00:00+08:00</published><updated>2016-01-17T00:00:00+08:00</updated><id>http://localhost:4000/ios/2016/01/17/retainAndCopy</id><content type="html" xml:base="http://localhost:4000/ios/2016/01/17/retainAndCopy.html">&lt;ul&gt;
+  &lt;li&gt;了解这二者就必须先了解一下深浅复制有什么区别。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;浅 复制：在复制操作时，对于被复制的对象的每一层复制都是指针复制。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;深 复制：在复制操作时，对于被复制的对象至少有一层复制是对象复制。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;完全 复制：在复制操作时，对于被复制的对象的每一层复制都是对象复制。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;总而言之就是深复制会复制对象本身，而浅复制则只停留在指针层面，所以相对应的是：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;retain：始终是浅复制。引用计数每次加一。返回对象是否可变与被复制的对象保持一致。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;copy：对于可变对象为深复制，引用计数不改变;对于不可变对象是浅复制，
+         引用计数每次加一。始终返回一个不可变对象。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;mutableCopy：始终是深复制，引用计数不改变。始终返回一个可变对象。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;然后再从索引次数和释放顺序的角度来看：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;copy:建立一个索引计数为1的对象，然后释放旧对象 。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;retain:释放旧的对象，将旧对象的值赋予输入对象，再提高输入对象的索引计数为1。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;参考&lt;a href=&quot;http://www.cnblogs.com/langtianya/p/3722129.html&quot;&gt;http://www.cnblogs.com/langtianya/p/3722129.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://www.cnblogs.com/csj007523/archive/2012/07/23/2605662.html&quot;&gt;http://www.cnblogs.com/csj007523/archive/2012/07/23/2605662.html&lt;/a&gt;&lt;/p&gt;</content><author><name>Leon-Kang</name></author><category term="iOS" /><summary type="html">了解这二者就必须先了解一下深浅复制有什么区别。</summary></entry><entry><title type="html">iOS页面传值问题（swift2.0篇）</title><link href="http://localhost:4000/ios/2016/01/10/swiftPassValue.html" rel="alternate" type="text/html" title="iOS页面传值问题（swift2.0篇）" /><published>2016-01-10T00:00:00+08:00</published><updated>2016-01-10T00:00:00+08:00</updated><id>http://localhost:4000/ios/2016/01/10/swiftPassValue</id><content type="html" xml:base="http://localhost:4000/ios/2016/01/10/swiftPassValue.html">&lt;p&gt;#iOS页面传值问题（swift2.0篇）&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;同样是介绍iOS开发中的页面传值，此篇与上一篇&lt;a href=&quot;http://leon-kang.github.io/ios/2016/01/05/页面传值问题OC/&quot;&gt;使用Objective-C传值&lt;/a&gt;对应。在OC中的方法在swift中也是同样适用的，而且还要介绍一些swift特有的方式。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;##一、协议&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;使用协议还是3+2一共五个步骤，按部就班来实现就可以了。还是先想清楚谁委托谁代理，在逻辑上不要出现错误。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;新的项目中创建了两个新的类：A类负责显示，B类负责输入。所以说A只要负责拿到数据即可，让B类来作委托方。这里的协议是写在委托方的文件之中的，并没有重新创建。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;借用上一篇的图来继续实现各个步骤：
+&lt;img src=&quot;http://7xpo5x.com1.z0.glb.clouddn.com/passValue030.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;继续来委托方的两步走，因为这里代码行数真的不多，而且不分.h和.m，我们来看一下B类的所有代码：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot; data-lang=&quot;swift&quot;&gt;&lt;span class=&quot;kd&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UIKit&lt;/span&gt;
+
+&lt;span class=&quot;cm&quot;&gt;/**
+ *    @author kl, 16-01-10 17:01:25
+ *
+ *    @brief 传值协议
+ */&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;protocol&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;passValueDelegate&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;passValue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;BViewController&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UIViewController&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// 1、声明属性&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;delegate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;passValueDelegate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;?&lt;/span&gt;
+    
+    &lt;span class=&quot;kd&quot;&gt;@IBOutlet&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;weak&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;textField&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UITextField&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;override&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;viewDidLoad&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;viewDidLoad&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+        
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    
+    &lt;span class=&quot;kd&quot;&gt;@IBAction&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;buttonActive&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;sender&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;AnyObject&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        
+        &lt;span class=&quot;c1&quot;&gt;// 2、调用代理方法，把值传输出去&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;delegate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;?&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;passValue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;textField&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        
+        &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;dismissViewControllerAnimated&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;completion&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;nil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;接着是代理方的三步走，还是来看全部代码：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot; data-lang=&quot;swift&quot;&gt;&lt;span class=&quot;kd&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UIKit&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;AViewController&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UIViewController&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;passValueDelegate&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 1、遵守协议&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+
+    &lt;span class=&quot;kd&quot;&gt;@IBOutlet&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;weak&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;textLabel&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UILabel&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;override&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;viewDidLoad&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;viewDidLoad&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    
+    &lt;span class=&quot;kd&quot;&gt;@IBAction&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;buttonAction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;sender&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;AnyObject&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;bVC&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;BViewController&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+        
+        &lt;span class=&quot;c1&quot;&gt;// 2、设置代理&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;bVC&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;delegate&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;
+        
+        &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;presentViewController&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bVC&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;animated&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;completion&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;nil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// 3、重写协议方法，取到传值&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;passValue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;textLabel&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;##二、闭包&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;在swift中对闭包有了很好的支持，相当于C和Objective-C的blocks或者Python的lambdas。而且相对于blocks更加灵活一些。这里简单介绍一下使用闭包传递信息的方法。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;需要在B类文件中做的事情：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;1、在B类先利用typealias声明一个闭包类型：&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot; data-lang=&quot;swift&quot;&gt;&lt;span class=&quot;kd&quot;&gt;typealias&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;nameValue&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;Void&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;2、然后在声明一个此类型的属性：&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot; data-lang=&quot;swift&quot;&gt;    &lt;span class=&quot;k&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;nameText&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;nameValue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;?&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;3、掉用一次闭包属性把值传出去，此处是在Button的跳转方法中调用的：&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot; data-lang=&quot;swift&quot;&gt;        &lt;span class=&quot;c1&quot;&gt;// 使用闭包传值出去&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;nameText&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bNameTextField&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;4、再添加一个方法用于传值：&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot; data-lang=&quot;swift&quot;&gt;    &lt;span class=&quot;c1&quot;&gt;// 闭包方法&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;returnNameValue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;nameValue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nameText&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;在A类文件中做的事情：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;1、调用一次A类对象的闭包传值方法拿到值，这里是在Button的跳转方法里调用的：&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot; data-lang=&quot;swift&quot;&gt;        &lt;span class=&quot;c1&quot;&gt;// 取到闭包传递的值&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;bVC&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;returnNameValue&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Void&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nameTextField&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;最后有两个页面的全部代码，可以参照整体来看。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;##三、使用NSNotificationCenter&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;在swift语言中通知机制几乎没什么太大变化，还是以NSNotificationCenter为中介者，通过String类型标识来广播和接受信息。一般步骤是广播-接收-移除观察者，最后一步千万不能忘，收到信息记得移除观察者，不然会产生一些意料之外不可预测的情况发生，而且对系统资源也是一种浪费。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;1、A发出一个名为”name”的广播，广播内容是A页面上的textField所输入的内容，这里是写在跳转语句后边的，以确保发送的广播是输入完成以后的：&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot; data-lang=&quot;swift&quot;&gt;    &lt;span class=&quot;kd&quot;&gt;@IBAction&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;buttonAction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;sender&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;AnyObject&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;bVC&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;BViewController&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+        
+        &lt;span class=&quot;c1&quot;&gt;// 取到闭包传递的值&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;bVC&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;returnNameValue&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Void&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nameTextField&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+        
+        &lt;span class=&quot;c1&quot;&gt;// 2、设置代理&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;bVC&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;delegate&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;
+        
+        &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;presentViewController&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bVC&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;animated&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;completion&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;nil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        
+        &lt;span class=&quot;c1&quot;&gt;// 发出广播&lt;/span&gt;
+        &lt;span class=&quot;kt&quot;&gt;NSNotificationCenter&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;defaultCenter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;postNotificationName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;object&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nameTextField&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;2、在B类中接收信息，并在收到时执行指定方法，方法的参数也还是跟Objective-C中一样，第一个为要注册的观察者；第二个同样是SEL类型的参数，不过在swift中没有了@selector关键字，采用以String类型输入要执行的方法名，这个跟OC中是有些区别的；第三个name参数即为要接收的信息的名字，这里采用String类型作为标识；最后一个参数同样是是否指定信息的发送者，填写的话便表示你只需要你填写的那个对象发出的信息，这里nil表示不指定对象：&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot; data-lang=&quot;swift&quot;&gt;    &lt;span class=&quot;k&quot;&gt;override&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;viewDidLoad&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;viewDidLoad&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bNameTextField&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;clearButtonMode&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;WhileEditing&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;textField&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;clearButtonMode&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;WhileEditing&lt;/span&gt;
+        
+        &lt;span class=&quot;c1&quot;&gt;// 注册为观察者，接收信息&lt;/span&gt;
+        &lt;span class=&quot;kt&quot;&gt;NSNotificationCenter&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;defaultCenter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;addObserver&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;selector&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;printName:&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;object&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;nil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;方法内容：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot; data-lang=&quot;swift&quot;&gt;    &lt;span class=&quot;kd&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;printName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;notifaction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;NSNotification&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;nf&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;notifaction&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;object&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bNameTextField&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;notifaction&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;object&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as?&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;String&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;3、在方法中添加移除观察者者的代码：&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot; data-lang=&quot;swift&quot;&gt;    &lt;span class=&quot;kd&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;printName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;notifaction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;NSNotification&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;nf&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;notifaction&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;object&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bNameTextField&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;notifaction&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;object&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as?&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;String&lt;/span&gt;
+        &lt;span class=&quot;kt&quot;&gt;NSNotificationCenter&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;defaultCenter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;removeObserver&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;最后还是借用上次的图：
+&lt;img src=&quot;http://7xpo5x.com1.z0.glb.clouddn.com/passValue020.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;这样A中的nameTextField和B中的bNameTextField就相连接起来了，在这两个控件中输入信息在更换页面时都会显示在另一个控件上。从B到A是采用的是闭包传值，而从A到B时采用的是广播传值。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;####最后的A类文件内容：&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot; data-lang=&quot;swift&quot;&gt;&lt;span class=&quot;kd&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UIKit&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;AViewController&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UIViewController&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;passValueDelegate&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 1、遵守协议&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;@IBOutlet&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;weak&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;textLabel&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UILabel&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+    
+    &lt;span class=&quot;kd&quot;&gt;@IBOutlet&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;weak&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;nameTextField&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UITextField&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;override&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;viewDidLoad&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;viewDidLoad&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nameTextField&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;clearButtonMode&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;WhileEditing&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+        
+    &lt;span class=&quot;kd&quot;&gt;@IBAction&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;buttonAction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;sender&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;AnyObject&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;bVC&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;BViewController&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+        
+        &lt;span class=&quot;c1&quot;&gt;// 取到闭包传递的值&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;bVC&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;returnNameValue&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Void&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nameTextField&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+        
+        &lt;span class=&quot;c1&quot;&gt;// 2、设置代理&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;bVC&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;delegate&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;
+        
+        &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;presentViewController&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bVC&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;animated&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;completion&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;nil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        
+        &lt;span class=&quot;c1&quot;&gt;// 发出广播&lt;/span&gt;
+        &lt;span class=&quot;kt&quot;&gt;NSNotificationCenter&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;defaultCenter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;postNotificationName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;object&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nameTextField&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    
+    &lt;span class=&quot;c1&quot;&gt;// 3、重写协议方法，取到传值&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;passValue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;textLabel&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    
+
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;#####最后的B类文件内容：&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot; data-lang=&quot;swift&quot;&gt;&lt;span class=&quot;kd&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UIKit&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;protocol&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;passValueDelegate&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;passValue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;typealias&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;nameValue&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;Void&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;BViewController&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UIViewController&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// 1、声明属性&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;delegate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;passValueDelegate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;?&lt;/span&gt;
+    
+    &lt;span class=&quot;kd&quot;&gt;@IBOutlet&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;weak&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;textField&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UITextField&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;@IBOutlet&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;weak&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;bNameTextField&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UITextField&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;nameText&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;nameValue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;?&lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;override&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;viewDidLoad&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;viewDidLoad&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bNameTextField&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;clearButtonMode&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;WhileEditing&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;textField&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;clearButtonMode&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;WhileEditing&lt;/span&gt;
+        
+        &lt;span class=&quot;c1&quot;&gt;// 注册为观察者，接收信息&lt;/span&gt;
+        &lt;span class=&quot;kt&quot;&gt;NSNotificationCenter&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;defaultCenter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;addObserver&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;selector&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;printName:&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;object&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;nil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    
+    &lt;span class=&quot;kd&quot;&gt;@IBAction&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;buttonActive&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;sender&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;AnyObject&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;// 2、调用代理方法，把值传输出去&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;delegate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;?&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;passValue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;textField&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        
+        &lt;span class=&quot;c1&quot;&gt;// 使用闭包传值出去&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;nameText&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bNameTextField&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        
+        &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;dismissViewControllerAnimated&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;completion&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;nil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    
+    &lt;span class=&quot;kd&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;printName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;notifaction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;NSNotification&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;nf&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;notifaction&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;object&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bNameTextField&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;notifaction&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;object&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as?&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;String&lt;/span&gt;
+        &lt;span class=&quot;kt&quot;&gt;NSNotificationCenter&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;defaultCenter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;removeObserver&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    
+    &lt;span class=&quot;c1&quot;&gt;// 闭包方法&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;returnNameValue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;nameValue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nameText&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;####&lt;a href=&quot;https://github.com/Leon-Kang/PassValue&quot;&gt;需要代码戳这里&lt;/a&gt;&lt;/p&gt;</content><author><name>Leon-Kang</name></author><category term="swift" /><summary type="html">#iOS页面传值问题（swift2.0篇）</summary></entry><entry><title type="html">利用Swift2.0编写UIAlertController</title><link href="http://localhost:4000/ios/2016/01/05/%E5%88%A9%E7%94%A8Swift%E8%AF%AD%E8%A8%80%E7%BC%96%E5%86%99UIAlertController.html" rel="alternate" type="text/html" title="利用Swift2.0编写UIAlertController" /><published>2016-01-05T00:00:00+08:00</published><updated>2016-01-05T00:00:00+08:00</updated><id>http://localhost:4000/ios/2016/01/05/%E5%88%A9%E7%94%A8Swift%E8%AF%AD%E8%A8%80%E7%BC%96%E5%86%99UIAlertController</id><content type="html" xml:base="http://localhost:4000/ios/2016/01/05/%E5%88%A9%E7%94%A8Swift%E8%AF%AD%E8%A8%80%E7%BC%96%E5%86%99UIAlertController.html">&lt;p&gt;##利用Swift2.0编写UIAlertController&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;上次使用Objective-C语言介绍了UIAlertController大致的用法，最近正好在学习swift，这次我们使用swift语言来添加UIAlertController。
+另外先附上上一篇的链接，里边介绍了UIAlertController的大致用法。&lt;a href=&quot;http://leon-kang.github.io/ios/2015/12/31/关于UIAlertController的用法/&quot;&gt;关于UIAlertController的用法&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;下面我们仍然采用上一篇的结构来写，方便对两种语言下的编写形成对照。还是两种风格分开介绍。如果有什么没有涉及到也可以结合上一篇来看。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;###一、AlertView&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;还是首先创建一个UIAlertController对象。这里其实我的写法还是骨子里透着OC的灵魂，各个地方都比较规整。在第一部分先这样写，跟OC对照着看效率会比较高，在下一部分会采用『能省则省』的写法来写。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot; data-lang=&quot;swift&quot;&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;alertView&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UIAlertController&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UIAlertController&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;init&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;title&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;AlertView&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;I want to tell you something&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;preferredStyle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UIAlertControllerStyle&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;Alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;然后我们再给它添加两个按钮，如果不添加任何按钮跳转到UIAlertController是无法返回的。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot; data-lang=&quot;swift&quot;&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;alertViewAction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UIAlertAction&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UIAlertAction&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;init&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;title&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;确定&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;style&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UIAlertActionStyle&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;Default&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;handler&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;UIAlertAction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Void&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; 
+      &lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;          
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;alertViewCancelAction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UIAlertAction&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UIAlertAction&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;init&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;title&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;取消&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;style&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UIAlertActionStyle&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;Cancel&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;handler&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;nil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;           
+&lt;span class=&quot;n&quot;&gt;alertView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;addAction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;alertViewAction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;alertView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;addAction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;alertViewCancelAction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;效果如图：
+&lt;img src=&quot;http://7xpo5x.com1.z0.glb.clouddn.com/SwiftUIAlertController01.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;当然按钮的style还是三种『默认』、『取消』、『销毁』，我们再给它添加一个『销毁』风格的按钮：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot; data-lang=&quot;swift&quot;&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;alertViewDestructive&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UIAlertAction&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UIAlertAction&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;init&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;title&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;销毁&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;style&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UIAlertActionStyle&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;Destructive&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;handler&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;UIAlertAction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Void&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt;
+ &lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;alertView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;addAction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;alertViewDestructive&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;如图：
+&lt;img src=&quot;http://7xpo5x.com1.z0.glb.clouddn.com/SwiftUIAlertController02.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;如果需要在点击时触发某些事件，可以写在handler：这个属性后边的闭包中（相当于OC中的block又有些许不同）。比如我们继续添加一个textField然后在闭包中设置一些属性。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot; data-lang=&quot;swift&quot;&gt; &lt;span class=&quot;n&quot;&gt;alertView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;addTextFieldWithConfigurationHandler&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;UITextField&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Void&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt;
+                &lt;span class=&quot;kt&quot;&gt;UITextField&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;placeholder&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;name&quot;&lt;/span&gt;
+                &lt;span class=&quot;kt&quot;&gt;UITextField&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;clearButtonMode&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UITextFieldViewMode&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;WhileEditing&lt;/span&gt;
+            &lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;效果如图：
+&lt;img src=&quot;http://7xpo5x.com1.z0.glb.clouddn.com/SwiftUIAlertController04.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;最后千万记得跳转到我们创建的alertView上：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot; data-lang=&quot;swift&quot;&gt;&lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;presentViewController&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;alertView&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;animated&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;completion&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;nil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;###二、ActionSheet&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;创建一个ActionSheet风格的AlertController：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot; data-lang=&quot;swift&quot;&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;alertSheet&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UIAlertController&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;init&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;title&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;alertSheet&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;no message&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;preferredStyle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;ActionSheet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;跟上边相比较，少了明确声明类型和选择风格时的前缀。这也是我很喜欢的一点，特别是选择风格时只需要使用点语法就可以，再加上Xcode强大的提示和功能，一目了然，而且很难选错。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;然后同上边一样我们继续给他添加上三个风格的按钮。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot; data-lang=&quot;swift&quot;&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;alertSheetAction&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UIAlertAction&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;init&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;title&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;确定&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;style&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;Default&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;handler&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;nil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;alertSheet&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;addAction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;alertSheetAction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;alertSheetCancel&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UIAlertAction&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;init&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;title&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;取消&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;style&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;Cancel&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;handler&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;nil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;alertSheet&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;addAction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;alertSheetCancel&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;alertSheetDestructive&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UIAlertAction&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;init&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;title&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;销毁&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;style&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;Destructive&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;handler&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;nil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;alertSheet&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;addAction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;alertSheetDestructive&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;效果如图：
+&lt;img src=&quot;http://7xpo5x.com1.z0.glb.clouddn.com/SwiftUIAlertController05.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;当然也同OC中一样，把title与message两个属性设置为nil便可以隐藏掉最上边一栏只剩下按钮。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot; data-lang=&quot;swift&quot;&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;alertSheet&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UIAlertController&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;init&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;title&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;nil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;nil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;preferredStyle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;ActionSheet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;效果如下：
+&lt;img src=&quot;http://7xpo5x.com1.z0.glb.clouddn.com/SwiftUIAlertController06.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;在上一篇中没有提到，其实这种方法在AlertView风格中也是试用的。不过····效果你自己看吧！&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://7xpo5x.com1.z0.glb.clouddn.com/SwiftUIAlertController07.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;真的蛮不可接受的····。去掉textField还可以。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://7xpo5x.com1.z0.glb.clouddn.com/SwiftUIAlertController08.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;###顺便补上监听传值的那一部分&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;这是设置监听的那一部分，在textField的闭包中设置&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot; data-lang=&quot;swift&quot;&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;n&quot;&gt;alertView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;addTextFieldWithConfigurationHandler&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;UITextField&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Void&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt;
+&lt;span class=&quot;kt&quot;&gt;UITextField&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;placeholder&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;name&quot;&lt;/span&gt;
+&lt;span class=&quot;kt&quot;&gt;UITextField&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;clearButtonMode&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UITextFieldViewMode&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;WhileEditing&lt;/span&gt;
+                
+&lt;span class=&quot;c1&quot;&gt;// 设置监听&lt;/span&gt;
+ &lt;span class=&quot;n&quot;&gt;_&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;NSNotificationCenter&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;defaultCenter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;addObserver&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;selector&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;textChange:&quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UITextFieldTextDidChangeNotification&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;object&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UITextField&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+                
+&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;监听方法&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot; data-lang=&quot;swift&quot;&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;kd&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;textChange&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;notification&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;NSNotification&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+   &lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;textFied&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;notification&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;object&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as!&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;UITextField&lt;/span&gt;      
+   &lt;span class=&quot;n&quot;&gt;textLabel&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;textFied&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;释放监听&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot; data-lang=&quot;swift&quot;&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;kd&quot;&gt;deinit&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kt&quot;&gt;NSNotificationCenter&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;defaultCenter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;removeObserver&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;##总结&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;控件的使用方法几乎是没有变化的，而且swift在语法上要简洁很多很多。使用起来也非常方便高效，如果你还在OC的坑里摸不着头脑，直接学习swift吧！&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/Leon-Kang/UIAlertController&quot;&gt;代码传送门&lt;/a&gt;&lt;/p&gt;</content><author><name>Leon-Kang</name></author><category term="swift" /><summary type="html">##利用Swift2.0编写UIAlertController 上次使用Objective-C语言介绍了UIAlertController大致的用法，最近正好在学习swift，这次我们使用swift语言来添加UIAlertController。 另外先附上上一篇的链接，里边介绍了UIAlertController的大致用法。关于UIAlertController的用法</summary></entry><entry><title type="html">iOS页面传值问题（Objective-C篇）</title><link href="http://localhost:4000/ios/2016/01/05/%E9%A1%B5%E9%9D%A2%E4%BC%A0%E5%80%BC%E9%97%AE%E9%A2%98OC.html" rel="alternate" type="text/html" title="iOS页面传值问题（Objective-C篇）" /><published>2016-01-05T00:00:00+08:00</published><updated>2016-01-05T00:00:00+08:00</updated><id>http://localhost:4000/ios/2016/01/05/%E9%A1%B5%E9%9D%A2%E4%BC%A0%E5%80%BC%E9%97%AE%E9%A2%98OC</id><content type="html" xml:base="http://localhost:4000/ios/2016/01/05/%E9%A1%B5%E9%9D%A2%E4%BC%A0%E5%80%BC%E9%97%AE%E9%A2%98OC.html">&lt;p&gt;#iOS页面传值问题（Objective-C篇）&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;因为自己对这方面还有一些不够熟练。现在总结一下常用的几种方法，方便自己复习和以后使用。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;在iOS界面搭建中，页面传值是肯定会使用到的。而经常使用的传值方式也无非那么几种。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;##一、委托方法&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;协议方法是一种非常常用的传值方法，只要在协议中声明一个协议方法，然后两个类一个作为委托方一个作为遵守方来调用和实现方法就可以实现传值。十分高效而且针对性很强。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;首先创建一个.h头文件，当然也可以直接写在委托方的类文件中，协议内容如下：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;@protocol PassValueDelegate &amp;lt;NSObject&amp;gt;
+
+@optional
+
+- (void)passValue:(NSString *)value;
+
+@end&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;然后需要思考哪一个类来做遵守协议的一方，在这个例子中，因为第一个类只需要接受值显示在UILabel上就可以，不用去管值的来源，所以我们让其成为遵守协议的一方，而第二个带UITextField的类则作为委托者。&lt;/li&gt;
+  &lt;li&gt;这样我们需要先让类二提供一个delegate属性，以指定受委托的对象，然后调用一次passValue：方法把值传出去。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;1、声明delegate属性&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;@property (nonatomic, strong) id&amp;lt;PassValueDelegate&amp;gt; delegate;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;2、调用passValue：方法，这里是在跳转的按钮方法中调用的：&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;- (IBAction)buttonAction:(id)sender { 
+    [self.delegate passValue:self.valueTextField.text];
+    [self dismissViewControllerAnimated:YES completion:nil];
+    
+}&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;然后是要在第一个接受信息的类中设置遵守协议，然后设置代理者，最后重写协议方法。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;1、 遵守协议：&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;@interface KLViewController () &amp;lt;PassValueDelegate&amp;gt;
+
+@end&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;2、设置代理，这里是在跳转的button方法中写的：&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;KLAViewController *aViewC = [[KLAViewController alloc] init];
+aViewC.delegate = self;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;3、重写协议方法，这里的value参数便是从另一个类中调用该方法时传出的的值，在这里我们把它赋给UILabel：&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;- (void)passValue:(NSString *)value
+{
+    self.valueLabel.text = value;
+}&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;协议传值无非这么五步，重要的是思考清楚谁作为委托者而谁遵守协议，以防止出现混乱的逻辑或者绕远路的情况发生。&lt;/li&gt;
+  &lt;li&gt;最后是，记住几个主要步骤：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://7xpo5x.com1.z0.glb.clouddn.com/passValue030.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;##二、block方法&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;block大家应该都不陌生了，从iOS4.0开始广泛的应用在iOS开发中，是一种C语言的扩充功能，在Objective-C中也得到了很好地支持与运用，在这里我们不对其本身多做赘述。只是运用block来实现界面之间传值功能。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;同样的两个类：一个有UITextField控件，一个有UILabel控件。现在实现在第二个界面输入，第一个界面显示。&lt;/li&gt;
+  &lt;li&gt;首先在第二个类中声明一个block块，这里利用typedef把block块声明成名叫returnTextBlock的类型：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;typedef void(^returnTextBlock)(NSString *text);&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;然后我们还需要给类2声明一个returnTextBlock类型的属性和一个调用returnTextBlock的方法：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;@property (nonatomic, copy) returnTextBlock returnTextBlock;
+- (void)returnText:(returnTextBlock)textBlock;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;实现该方法，并给block属性赋值，这里是在跳转的button方法中给其赋值的：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;- (void)returnText:(returnTextBlock)textBlock
+{
+    self.returnTextBlock = textBlock;
+}&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;- (IBAction)buttonAction:(id)sender {
+    self.returnTextBlock(self.myTextField.text);
+    [self dismissViewControllerAnimated:YES completion:nil];
+}  &lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;在类1中调用block方法以实现传值：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;- (IBAction)buttonActive:(id)sender {
+    KLAViewController *aViewC = [[KLAViewController alloc] init];
+    // 拿到block传的值
+    [aViewC returnText:^(NSString *text) {
+        self.textLabel.text = text;
+    }];
+    [self presentViewController:aViewC animated:YES completion:nil
+     ];  
+}&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;在两个页面之间存在一些联系时（例如跳转或者包含），使用block传值是非常方便的，不像协议传值需要重新创建协议也不像通知模式一样使用NSString类型作为识别方法容易出现错误。但是使用block需要一定的熟练度，这里可能说的有些含糊，稍后补上。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;##三、使用NSNotificationCenter通知模式&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;类似于广播的一种传值模式，十分简单易用。一般负责在两个不同的类之间传值，且耦合度很低。着这种方式中NSNotificationCenter担任一个中介者的身份，已提供观察者与被观察者相互传递信息。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Objective-C中使用NSNotifation表示通知，每个NSNotifation对象都具有名称（NSNotificationCenter根据该名称检索此通知的所有观察者）、来源对象（发布该通知的对象）和可选的userInfo字典（来源对象需要告诉观察者的额外信息）。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;NSNotificationCenter就相当于一个俱乐部，只要一行代码一个类就能加入其中成为会员，当然这个类要告诉俱乐部它对哪些信息感兴趣，当有新的信息出现时，俱乐部会询问每一位会员这个信息是否是它们所需要的。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;来看注册通知的代码：&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(printName:) name:@&quot;name&quot; object:nil];&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;使用此代码便能注册为观察者（会员），Observer：此处对象即为注册者； name:后是要加上此观察者所要观察的信息（此会员感兴趣的内容）（可以为单纯的NSString类型，也可以是系统封装好的名称）；selector:此处一般添加一个SEL选择器以实现当接收到信息时执行某一个方法的动作；最后一个参数object:表示只对哪个发送对象的信息作出响应（只接受某一个对象的信息），设为nil则是接受所有发送者的信息。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;然后我们在另一个界面的Controller中发送信息：&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;NSString *name = @&quot;Leon-Kang&quot;;
+[[NSNotificationCenter defaultCenter] postNotificationName:@&quot;name&quot; object:name];&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;这行代码便是向NSNotificationCenter发送了一条名为”name”的广播，发送出去的是一个NSString类型的对象name。这样就可以把这个对象发送给需要接受的观察者了。如图所示：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://7xpo5x.com1.z0.glb.clouddn.com/passValue010.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;当然这个广播不是指向单一对象的：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://7xpo5x.com1.z0.glb.clouddn.com/passValue020.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;但是不要忘记了最重要的一点，每次接受完是要移除观察的，这里是在接收到信息后执行的方法中移除的，如下：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;- (void)printName:(NSNotification *)notifaction {
+    NSString *name = notifaction.object;
+    NSLog(@&quot;%@&quot;, name);
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;如果不去移除可能会出现一些意料之外的问题，在这个例子中如果没有移除观察者，每次打印出的数据会累加，说明每次切换回来都重新注册了一次观察者，而每个观察者（未移除的与新注册的）都会接收到信息而执行打印方法。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;####&lt;a href=&quot;https://github.com/Leon-Kang/PassValue&quot;&gt;需要代码戳这里&lt;/a&gt;&lt;/p&gt;</content><author><name>Leon-Kang</name></author><category term="iOS" /><summary type="html">#iOS页面传值问题（Objective-C篇）</summary></entry><entry><title type="html">关于UIAlertController的用法</title><link href="http://localhost:4000/ios/2015/12/31/%E5%85%B3%E4%BA%8EUIAlertController%E7%9A%84%E7%94%A8%E6%B3%95.html" rel="alternate" type="text/html" title="关于UIAlertController的用法" /><published>2015-12-31T00:00:00+08:00</published><updated>2015-12-31T00:00:00+08:00</updated><id>http://localhost:4000/ios/2015/12/31/%E5%85%B3%E4%BA%8EUIAlertController%E7%9A%84%E7%94%A8%E6%B3%95</id><content type="html" xml:base="http://localhost:4000/ios/2015/12/31/%E5%85%B3%E4%BA%8EUIAlertController%E7%9A%84%E7%94%A8%E6%B3%95.html">&lt;h1 id=&quot;关于uialertcontroller的用法&quot;&gt;关于UIAlertController的用法&lt;/h1&gt;
+
+&lt;p&gt;##简介&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;在新版本的Xcode中增加了UIAlertController而UIAlertView在调用时则会显示已经过期。本人在使用中经常会使用到Alert窗口，所以整理一下用法以方便自己使用。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;基本语法&quot;&gt;基本语法&lt;/h2&gt;
+
+&lt;h3 id=&quot;一基础控件的添加原uialertview&quot;&gt;一、基础控件的添加(原UIAlertView)&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;创建一个UIAlertController对象：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;UIAlertController *alertOne = [UIAlertController alertControllerWithTitle:@&quot;I'm alertOne&quot; message:@&quot;I want to tell you something&quot; preferredStyle:UIAlertControllerStyleAlert]; 
+[self presentViewController:alertOne animated:YES completion:nil];&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;这一段代码初始化了一个最基本名字叫alertOne；Title为『I’m alertOne』；显示内容为『I want to tell you something』；而Style设为UIAlertControllerStyleAlert（最常见的弹出式alert。一共有两种，还有一种从下弹出式，稍后讲解）的UIAlertController对象。效果如下，因为没有添加AlertAction所以看起来很丑。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://7xpo5x.com1.z0.glb.clouddn.com/UIAlertController-01.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;让我们来为它添加一个『取消』按钮和一个『确定』按钮，让它看起来正常一些。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;UIAlertAction *cancel = [UIAlertAction actionWithTitle:@&quot;取消&quot; style:UIAlertActionStyleCancel handler:nil];         
+[alertOne addAction:cancel];    
+UIAlertAction *certain = [UIAlertAction actionWithTitle:@&quot;确定&quot; style:UIAlertActionStyleDefault handler:nil];    
+[alertOne addAction:certain];&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;初始化方法中Title对应着显示出来按钮的名称；style对于的是按钮的类型，有三种类型，这里用到了Cancel和Default，取消和默认的样式；还有一种是Destructive (销毁)样式，我们稍后添加。这样，我们就给他安上了两个按钮，就实现最基本也是最常见的alert样式。来看一下效果：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://7xpo5x.com1.z0.glb.clouddn.com/UIAlertController-02.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;接着我们继续在AlertController上插入一个textField控件，实现输入监听。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;[alertOne addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+      // 监听
+      [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleTextFieldTextDidChangeNotification:) name:UITextFieldTextDidChangeNotification object:textField];
+      // 定制键盘和输入框背景文字及clearButton
+      textField.placeholder = @&quot;请输入&quot;;
+      textField.clearButtonMode = UITextFieldViewModeWhileEditing;
+    }];
+}&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;这一段是在其自带的block代码块中利用NSNotificationCenter来实现值的传输。如果输入有变动的话就会传出变化的值。当然也可以根据需要写在按钮的方法block块中，以实现点击『取消』或『确定』按钮时实现相应的功能。然后我们继续完成handleTextFieldTextDidChangeNotification:方法：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;- (void)handleTextFieldTextDidChangeNotification:(NSNotification *)notification
+{
+    UITextField *textField = notification.object;
+    self.textLabel.text = textField.text;
+}&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://7xpo5x.com1.z0.glb.clouddn.com/UIAlertController-03.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;二从下方弹出式uialertcontroller原uiactionsheet&quot;&gt;二、从下方弹出式UIAlertController(原UIActionSheet)&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;上边我们使用的是基于UIAlertControllerStyleAlert风格的，下边来尝试一下另一种风格UIAlertControllerStyleActionSheet的使用方法。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;NSString *title = NSLocalizedString(@&quot;AlertTwo&quot;, nil);
+UIAlertController *alertTwo = [UIAlertController alertControllerWithTitle:title message:nil preferredStyle:UIAlertControllerStyleActionSheet];&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://7xpo5x.com1.z0.glb.clouddn.com/UIAlertController-04.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;这是最原始的形态，还是一样的丑，而且一样无法返回，添加按钮方法同上，但是这次我们把一个换成Destructive风格来看一下效果。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;UIAlertAction *cancel = [UIAlertAction actionWithTitle:@&quot;取消&quot; style:UIAlertActionStyleCancel handler:nil];
+[alertTwo addAction:cancel];    
+UIAlertAction *certain = [UIAlertAction actionWithTitle:@&quot;清空&quot; style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+        self.textLabel.text = nil;
+    }];
+[alertTwo addAction:certain];&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://7xpo5x.com1.z0.glb.clouddn.com/UIAlertController-06.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;再添加按钮以后，把alertTwo对象的Title设为nil，便可以把最上方的Title栏去掉，变成如下效果。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://7xpo5x.com1.z0.glb.clouddn.com/UIAlertController-07.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;这种风格的AlertController是不可以添加textField控件的。报错信息为『reason: ‘Text fields can only be added to an alert controller of style UIAlertControllerStyleAlert’』,苹果官方很明确地表示了不可以。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;UIAlertControllerStyleAlert说：『我就看看，不说话！』&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://7xpo5x.com1.z0.glb.clouddn.com/UIAlertController-09.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;UIAlertController用法比较简单，但是比较实用。如果想要实现更繁杂的功能或者效果还是需要自己去定制的。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/Leon-Kang/UIAlertController&quot;&gt;需要源代码点我&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;##续篇
+&lt;a href=&quot;http://leon-kang.github.io/ios/2016/01/05/利用Swift语言编写UIAlertController/&quot;&gt;利用Swift2.0编写UIAlertController&lt;/a&gt;&lt;/p&gt;</content><author><name>Leon-Kang</name></author><category term="iOS" /><summary type="html">关于UIAlertController的用法</summary></entry></feed>

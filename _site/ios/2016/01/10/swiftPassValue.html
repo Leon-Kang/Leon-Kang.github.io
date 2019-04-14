@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.0 -->
+<title>iOS页面传值问题（swift2.0篇） | LK</title>
+<meta name="generator" content="Jekyll v3.8.5" />
+<meta property="og:title" content="iOS页面传值问题（swift2.0篇）" />
+<meta name="author" content="Leon-Kang" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="#iOS页面传值问题（swift2.0篇）" />
+<meta property="og:description" content="#iOS页面传值问题（swift2.0篇）" />
+<link rel="canonical" href="http://localhost:4000/ios/2016/01/10/swiftPassValue.html" />
+<meta property="og:url" content="http://localhost:4000/ios/2016/01/10/swiftPassValue.html" />
+<meta property="og:site_name" content="LK" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2016-01-10T00:00:00+08:00" />
+<script type="application/ld+json">
+{"description":"#iOS页面传值问题（swift2.0篇）","author":{"@type":"Person","name":"Leon-Kang"},"@type":"BlogPosting","url":"http://localhost:4000/ios/2016/01/10/swiftPassValue.html","headline":"iOS页面传值问题（swift2.0篇）","dateModified":"2016-01-10T00:00:00+08:00","datePublished":"2016-01-10T00:00:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/ios/2016/01/10/swiftPassValue.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="LK" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">LK</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about.html">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">iOS页面传值问题（swift2.0篇）</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2016-01-10T00:00:00+08:00" itemprop="datePublished">Jan 10, 2016
+      </time>• <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span class="p-author h-card" itemprop="name">Leon-Kang</span></span></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>#iOS页面传值问题（swift2.0篇）</p>
+
+<blockquote>
+  <p>同样是介绍iOS开发中的页面传值，此篇与上一篇<a href="http://leon-kang.github.io/ios/2016/01/05/页面传值问题OC/">使用Objective-C传值</a>对应。在OC中的方法在swift中也是同样适用的，而且还要介绍一些swift特有的方式。</p>
+</blockquote>
+
+<p>##一、协议</p>
+<blockquote>
+  <p>使用协议还是3+2一共五个步骤，按部就班来实现就可以了。还是先想清楚谁委托谁代理，在逻辑上不要出现错误。</p>
+</blockquote>
+
+<ul>
+  <li>新的项目中创建了两个新的类：A类负责显示，B类负责输入。所以说A只要负责拿到数据即可，让B类来作委托方。这里的协议是写在委托方的文件之中的，并没有重新创建。</li>
+</ul>
+
+<p>借用上一篇的图来继续实现各个步骤：
+<img src="http://7xpo5x.com1.z0.glb.clouddn.com/passValue030.png" alt="" /></p>
+
+<ul>
+  <li>继续来委托方的两步走，因为这里代码行数真的不多，而且不分.h和.m，我们来看一下B类的所有代码：</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="kd">import</span> <span class="kt">UIKit</span>
+
+<span class="cm">/**
+ *    @author kl, 16-01-10 17:01:25
+ *
+ *    @brief 传值协议
+ */</span>
+<span class="kd">protocol</span> <span class="n">passValueDelegate</span> <span class="p">{</span>
+    <span class="kd">func</span> <span class="nf">passValue</span><span class="p">(</span><span class="k">var</span> <span class="nv">text</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">class</span> <span class="kt">BViewController</span><span class="p">:</span> <span class="kt">UIViewController</span> <span class="p">{</span>
+    <span class="c1">// 1、声明属性</span>
+    <span class="k">var</span> <span class="nv">delegate</span><span class="p">:</span> <span class="n">passValueDelegate</span><span class="p">?</span>
+    
+    <span class="kd">@IBOutlet</span> <span class="k">weak</span> <span class="k">var</span> <span class="nv">textField</span><span class="p">:</span> <span class="kt">UITextField</span><span class="o">!</span>
+    
+    <span class="k">override</span> <span class="kd">func</span> <span class="nf">viewDidLoad</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">super</span><span class="o">.</span><span class="nf">viewDidLoad</span><span class="p">()</span>
+        
+    <span class="p">}</span>
+    
+    <span class="kd">@IBAction</span> <span class="kd">func</span> <span class="nf">buttonActive</span><span class="p">(</span><span class="nv">sender</span><span class="p">:</span> <span class="kt">AnyObject</span><span class="p">)</span> <span class="p">{</span>
+        
+        <span class="c1">// 2、调用代理方法，把值传输出去</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">delegate</span><span class="p">?</span><span class="o">.</span><span class="nf">passValue</span><span class="p">(</span><span class="n">textField</span><span class="o">.</span><span class="n">text</span><span class="o">!</span><span class="p">)</span>
+        
+        <span class="k">self</span><span class="o">.</span><span class="nf">dismissViewControllerAnimated</span><span class="p">(</span><span class="kc">true</span><span class="p">,</span> <span class="nv">completion</span><span class="p">:</span> <span class="kc">nil</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<ul>
+  <li>接着是代理方的三步走，还是来看全部代码：</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="kd">import</span> <span class="kt">UIKit</span>
+
+<span class="kd">class</span> <span class="kt">AViewController</span><span class="p">:</span> <span class="kt">UIViewController</span><span class="p">,</span> <span class="n">passValueDelegate</span> <span class="c1">// 1、遵守协议</span>
+<span class="p">{</span>
+
+    <span class="kd">@IBOutlet</span> <span class="k">weak</span> <span class="k">var</span> <span class="nv">textLabel</span><span class="p">:</span> <span class="kt">UILabel</span><span class="o">!</span>
+    
+    <span class="k">override</span> <span class="kd">func</span> <span class="nf">viewDidLoad</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">super</span><span class="o">.</span><span class="nf">viewDidLoad</span><span class="p">()</span>
+
+    <span class="p">}</span>
+    
+    <span class="kd">@IBAction</span> <span class="kd">func</span> <span class="nf">buttonAction</span><span class="p">(</span><span class="nv">sender</span><span class="p">:</span> <span class="kt">AnyObject</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">bVC</span> <span class="o">=</span> <span class="kt">BViewController</span><span class="p">()</span>
+        
+        <span class="c1">// 2、设置代理</span>
+        <span class="n">bVC</span><span class="o">.</span><span class="n">delegate</span> <span class="o">=</span> <span class="k">self</span>
+        
+        <span class="k">self</span><span class="o">.</span><span class="nf">presentViewController</span><span class="p">(</span><span class="n">bVC</span><span class="p">,</span> <span class="nv">animated</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nv">completion</span><span class="p">:</span> <span class="kc">nil</span><span class="p">)</span>
+        
+    <span class="p">}</span>
+
+    <span class="c1">// 3、重写协议方法，取到传值</span>
+    <span class="kd">func</span> <span class="nf">passValue</span><span class="p">(</span><span class="nv">text</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">textLabel</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="p">}</span>
+
+<span class="p">}</span></code></pre></figure>
+
+<p>##二、闭包</p>
+<blockquote>
+  <p>在swift中对闭包有了很好的支持，相当于C和Objective-C的blocks或者Python的lambdas。而且相对于blocks更加灵活一些。这里简单介绍一下使用闭包传递信息的方法。</p>
+</blockquote>
+
+<ul>
+  <li>需要在B类文件中做的事情：</li>
+</ul>
+
+<p>1、在B类先利用typealias声明一个闭包类型：</p>
+
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="kd">typealias</span> <span class="n">nameValue</span> <span class="o">=</span> <span class="p">(</span><span class="kt">String</span><span class="p">)</span><span class="o">-&gt;</span><span class="kt">Void</span></code></pre></figure>
+
+<p>2、然后在声明一个此类型的属性：</p>
+
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift">    <span class="k">var</span> <span class="nv">nameText</span><span class="p">:</span> <span class="n">nameValue</span><span class="p">?</span></code></pre></figure>
+
+<p>3、掉用一次闭包属性把值传出去，此处是在Button的跳转方法中调用的：</p>
+
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift">        <span class="c1">// 使用闭包传值出去</span>
+        <span class="k">self</span><span class="o">.</span><span class="nf">nameText</span><span class="o">!</span><span class="p">(</span><span class="k">self</span><span class="o">.</span><span class="n">bNameTextField</span><span class="o">.</span><span class="n">text</span><span class="o">!</span><span class="p">)</span></code></pre></figure>
+
+<p>4、再添加一个方法用于传值：</p>
+
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift">    <span class="c1">// 闭包方法</span>
+    <span class="kd">func</span> <span class="nf">returnNameValue</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="n">nameValue</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">nameText</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="p">}</span></code></pre></figure>
+
+<ul>
+  <li>在A类文件中做的事情：</li>
+</ul>
+
+<p>1、调用一次A类对象的闭包传值方法拿到值，这里是在Button的跳转方法里调用的：</p>
+
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift">        <span class="c1">// 取到闭包传递的值</span>
+        <span class="n">bVC</span><span class="o">.</span><span class="n">returnNameValue</span> <span class="p">{</span> <span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span> <span class="k">in</span>
+            <span class="k">self</span><span class="o">.</span><span class="n">nameTextField</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="p">}</span></code></pre></figure>
+
+<ul>
+  <li>最后有两个页面的全部代码，可以参照整体来看。</li>
+</ul>
+
+<p>##三、使用NSNotificationCenter</p>
+<blockquote>
+  <p>在swift语言中通知机制几乎没什么太大变化，还是以NSNotificationCenter为中介者，通过String类型标识来广播和接受信息。一般步骤是广播-接收-移除观察者，最后一步千万不能忘，收到信息记得移除观察者，不然会产生一些意料之外不可预测的情况发生，而且对系统资源也是一种浪费。</p>
+</blockquote>
+
+<p>1、A发出一个名为”name”的广播，广播内容是A页面上的textField所输入的内容，这里是写在跳转语句后边的，以确保发送的广播是输入完成以后的：</p>
+
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift">    <span class="kd">@IBAction</span> <span class="kd">func</span> <span class="nf">buttonAction</span><span class="p">(</span><span class="nv">sender</span><span class="p">:</span> <span class="kt">AnyObject</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">bVC</span> <span class="o">=</span> <span class="kt">BViewController</span><span class="p">()</span>
+        
+        <span class="c1">// 取到闭包传递的值</span>
+        <span class="n">bVC</span><span class="o">.</span><span class="n">returnNameValue</span> <span class="p">{</span> <span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span> <span class="k">in</span>
+            <span class="k">self</span><span class="o">.</span><span class="n">nameTextField</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="p">}</span>
+        
+        <span class="c1">// 2、设置代理</span>
+        <span class="n">bVC</span><span class="o">.</span><span class="n">delegate</span> <span class="o">=</span> <span class="k">self</span>
+        
+        <span class="k">self</span><span class="o">.</span><span class="nf">presentViewController</span><span class="p">(</span><span class="n">bVC</span><span class="p">,</span> <span class="nv">animated</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nv">completion</span><span class="p">:</span> <span class="kc">nil</span><span class="p">)</span>
+        
+        <span class="c1">// 发出广播</span>
+        <span class="kt">NSNotificationCenter</span><span class="o">.</span><span class="nf">defaultCenter</span><span class="p">()</span><span class="o">.</span><span class="nf">postNotificationName</span><span class="p">(</span><span class="s">"name"</span><span class="p">,</span> <span class="nv">object</span><span class="p">:</span> <span class="k">self</span><span class="o">.</span><span class="n">nameTextField</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+    <span class="p">}</span></code></pre></figure>
+
+<p>2、在B类中接收信息，并在收到时执行指定方法，方法的参数也还是跟Objective-C中一样，第一个为要注册的观察者；第二个同样是SEL类型的参数，不过在swift中没有了@selector关键字，采用以String类型输入要执行的方法名，这个跟OC中是有些区别的；第三个name参数即为要接收的信息的名字，这里采用String类型作为标识；最后一个参数同样是是否指定信息的发送者，填写的话便表示你只需要你填写的那个对象发出的信息，这里nil表示不指定对象：</p>
+
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift">    <span class="k">override</span> <span class="kd">func</span> <span class="nf">viewDidLoad</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">super</span><span class="o">.</span><span class="nf">viewDidLoad</span><span class="p">()</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">bNameTextField</span><span class="o">.</span><span class="n">clearButtonMode</span> <span class="o">=</span> <span class="o">.</span><span class="kt">WhileEditing</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">textField</span><span class="o">.</span><span class="n">clearButtonMode</span> <span class="o">=</span> <span class="o">.</span><span class="kt">WhileEditing</span>
+        
+        <span class="c1">// 注册为观察者，接收信息</span>
+        <span class="kt">NSNotificationCenter</span><span class="o">.</span><span class="nf">defaultCenter</span><span class="p">()</span><span class="o">.</span><span class="nf">addObserver</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="nv">selector</span><span class="p">:</span> <span class="s">"printName:"</span><span class="p">,</span> <span class="nv">name</span><span class="p">:</span> <span class="s">"name"</span><span class="p">,</span> <span class="nv">object</span><span class="p">:</span> <span class="kc">nil</span><span class="p">)</span>
+    <span class="p">}</span></code></pre></figure>
+
+<ul>
+  <li>方法内容：</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift">    <span class="kd">func</span> <span class="nf">printName</span><span class="p">(</span><span class="nv">notifaction</span><span class="p">:</span> <span class="kt">NSNotification</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nf">print</span><span class="p">(</span><span class="n">notifaction</span><span class="o">.</span><span class="n">object</span><span class="p">)</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">bNameTextField</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">notifaction</span><span class="o">.</span><span class="n">object</span> <span class="k">as?</span> <span class="kt">String</span>
+    <span class="p">}</span></code></pre></figure>
+
+<p>3、在方法中添加移除观察者者的代码：</p>
+
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift">    <span class="kd">func</span> <span class="nf">printName</span><span class="p">(</span><span class="nv">notifaction</span><span class="p">:</span> <span class="kt">NSNotification</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nf">print</span><span class="p">(</span><span class="n">notifaction</span><span class="o">.</span><span class="n">object</span><span class="p">)</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">bNameTextField</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">notifaction</span><span class="o">.</span><span class="n">object</span> <span class="k">as?</span> <span class="kt">String</span>
+        <span class="kt">NSNotificationCenter</span><span class="o">.</span><span class="nf">defaultCenter</span><span class="p">()</span><span class="o">.</span><span class="nf">removeObserver</span><span class="p">(</span><span class="k">self</span><span class="p">)</span>
+    <span class="p">}</span></code></pre></figure>
+
+<p>最后还是借用上次的图：
+<img src="http://7xpo5x.com1.z0.glb.clouddn.com/passValue020.png" alt="" /></p>
+
+<ul>
+  <li>这样A中的nameTextField和B中的bNameTextField就相连接起来了，在这两个控件中输入信息在更换页面时都会显示在另一个控件上。从B到A是采用的是闭包传值，而从A到B时采用的是广播传值。</li>
+</ul>
+
+<p>####最后的A类文件内容：</p>
+
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="kd">import</span> <span class="kt">UIKit</span>
+
+<span class="kd">class</span> <span class="kt">AViewController</span><span class="p">:</span> <span class="kt">UIViewController</span><span class="p">,</span> <span class="n">passValueDelegate</span> <span class="c1">// 1、遵守协议</span>
+<span class="p">{</span>
+    <span class="kd">@IBOutlet</span> <span class="k">weak</span> <span class="k">var</span> <span class="nv">textLabel</span><span class="p">:</span> <span class="kt">UILabel</span><span class="o">!</span>
+    
+    <span class="kd">@IBOutlet</span> <span class="k">weak</span> <span class="k">var</span> <span class="nv">nameTextField</span><span class="p">:</span> <span class="kt">UITextField</span><span class="o">!</span>
+    
+    <span class="k">override</span> <span class="kd">func</span> <span class="nf">viewDidLoad</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">super</span><span class="o">.</span><span class="nf">viewDidLoad</span><span class="p">()</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">nameTextField</span><span class="o">.</span><span class="n">clearButtonMode</span> <span class="o">=</span> <span class="o">.</span><span class="kt">WhileEditing</span>
+    <span class="p">}</span>
+        
+    <span class="kd">@IBAction</span> <span class="kd">func</span> <span class="nf">buttonAction</span><span class="p">(</span><span class="nv">sender</span><span class="p">:</span> <span class="kt">AnyObject</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">bVC</span> <span class="o">=</span> <span class="kt">BViewController</span><span class="p">()</span>
+        
+        <span class="c1">// 取到闭包传递的值</span>
+        <span class="n">bVC</span><span class="o">.</span><span class="n">returnNameValue</span> <span class="p">{</span> <span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span> <span class="k">in</span>
+            <span class="k">self</span><span class="o">.</span><span class="n">nameTextField</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="p">}</span>
+        
+        <span class="c1">// 2、设置代理</span>
+        <span class="n">bVC</span><span class="o">.</span><span class="n">delegate</span> <span class="o">=</span> <span class="k">self</span>
+        
+        <span class="k">self</span><span class="o">.</span><span class="nf">presentViewController</span><span class="p">(</span><span class="n">bVC</span><span class="p">,</span> <span class="nv">animated</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nv">completion</span><span class="p">:</span> <span class="kc">nil</span><span class="p">)</span>
+        
+        <span class="c1">// 发出广播</span>
+        <span class="kt">NSNotificationCenter</span><span class="o">.</span><span class="nf">defaultCenter</span><span class="p">()</span><span class="o">.</span><span class="nf">postNotificationName</span><span class="p">(</span><span class="s">"name"</span><span class="p">,</span> <span class="nv">object</span><span class="p">:</span> <span class="k">self</span><span class="o">.</span><span class="n">nameTextField</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+    <span class="p">}</span>
+    
+    <span class="c1">// 3、重写协议方法，取到传值</span>
+    <span class="kd">func</span> <span class="nf">passValue</span><span class="p">(</span><span class="nv">text</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">textLabel</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="p">}</span>
+    
+
+<span class="p">}</span></code></pre></figure>
+
+<p>#####最后的B类文件内容：</p>
+
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="kd">import</span> <span class="kt">UIKit</span>
+
+<span class="kd">protocol</span> <span class="n">passValueDelegate</span> <span class="p">{</span>
+    <span class="kd">func</span> <span class="nf">passValue</span><span class="p">(</span><span class="k">var</span> <span class="nv">text</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">typealias</span> <span class="n">nameValue</span> <span class="o">=</span> <span class="p">(</span><span class="kt">String</span><span class="p">)</span><span class="o">-&gt;</span><span class="kt">Void</span>
+
+<span class="kd">class</span> <span class="kt">BViewController</span><span class="p">:</span> <span class="kt">UIViewController</span> <span class="p">{</span>
+    <span class="c1">// 1、声明属性</span>
+    <span class="k">var</span> <span class="nv">delegate</span><span class="p">:</span> <span class="n">passValueDelegate</span><span class="p">?</span>
+    
+    <span class="kd">@IBOutlet</span> <span class="k">weak</span> <span class="k">var</span> <span class="nv">textField</span><span class="p">:</span> <span class="kt">UITextField</span><span class="o">!</span>
+    <span class="kd">@IBOutlet</span> <span class="k">weak</span> <span class="k">var</span> <span class="nv">bNameTextField</span><span class="p">:</span> <span class="kt">UITextField</span><span class="o">!</span>
+    <span class="k">var</span> <span class="nv">nameText</span><span class="p">:</span> <span class="n">nameValue</span><span class="p">?</span>
+    
+    <span class="k">override</span> <span class="kd">func</span> <span class="nf">viewDidLoad</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">super</span><span class="o">.</span><span class="nf">viewDidLoad</span><span class="p">()</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">bNameTextField</span><span class="o">.</span><span class="n">clearButtonMode</span> <span class="o">=</span> <span class="o">.</span><span class="kt">WhileEditing</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">textField</span><span class="o">.</span><span class="n">clearButtonMode</span> <span class="o">=</span> <span class="o">.</span><span class="kt">WhileEditing</span>
+        
+        <span class="c1">// 注册为观察者，接收信息</span>
+        <span class="kt">NSNotificationCenter</span><span class="o">.</span><span class="nf">defaultCenter</span><span class="p">()</span><span class="o">.</span><span class="nf">addObserver</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="nv">selector</span><span class="p">:</span> <span class="s">"printName:"</span><span class="p">,</span> <span class="nv">name</span><span class="p">:</span> <span class="s">"name"</span><span class="p">,</span> <span class="nv">object</span><span class="p">:</span> <span class="kc">nil</span><span class="p">)</span>
+    <span class="p">}</span>
+    
+    <span class="kd">@IBAction</span> <span class="kd">func</span> <span class="nf">buttonActive</span><span class="p">(</span><span class="nv">sender</span><span class="p">:</span> <span class="kt">AnyObject</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// 2、调用代理方法，把值传输出去</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">delegate</span><span class="p">?</span><span class="o">.</span><span class="nf">passValue</span><span class="p">(</span><span class="n">textField</span><span class="o">.</span><span class="n">text</span><span class="o">!</span><span class="p">)</span>
+        
+        <span class="c1">// 使用闭包传值出去</span>
+        <span class="k">self</span><span class="o">.</span><span class="nf">nameText</span><span class="o">!</span><span class="p">(</span><span class="k">self</span><span class="o">.</span><span class="n">bNameTextField</span><span class="o">.</span><span class="n">text</span><span class="o">!</span><span class="p">)</span>
+        
+        <span class="k">self</span><span class="o">.</span><span class="nf">dismissViewControllerAnimated</span><span class="p">(</span><span class="kc">true</span><span class="p">,</span> <span class="nv">completion</span><span class="p">:</span> <span class="kc">nil</span><span class="p">)</span>
+    <span class="p">}</span>
+    
+    <span class="kd">func</span> <span class="nf">printName</span><span class="p">(</span><span class="nv">notifaction</span><span class="p">:</span> <span class="kt">NSNotification</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nf">print</span><span class="p">(</span><span class="n">notifaction</span><span class="o">.</span><span class="n">object</span><span class="p">)</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">bNameTextField</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">notifaction</span><span class="o">.</span><span class="n">object</span> <span class="k">as?</span> <span class="kt">String</span>
+        <span class="kt">NSNotificationCenter</span><span class="o">.</span><span class="nf">defaultCenter</span><span class="p">()</span><span class="o">.</span><span class="nf">removeObserver</span><span class="p">(</span><span class="k">self</span><span class="p">)</span>
+    <span class="p">}</span>
+    
+    <span class="c1">// 闭包方法</span>
+    <span class="kd">func</span> <span class="nf">returnNameValue</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="n">nameValue</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">nameText</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>####<a href="https://github.com/Leon-Kang/PassValue">需要代码戳这里</a></p>
+
+  </div><a class="u-url" href="/ios/2016/01/10/swiftPassValue.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">LK</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">LK</li><li><a class="u-email" href="mailto:me@ojbk.dev">me@ojbk.dev</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/Leon-Kang"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">Leon-Kang</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>We must be strong on the way of growth.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

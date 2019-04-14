@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.0 -->
+<title>iOS页面传值问题（Objective-C篇） | LK</title>
+<meta name="generator" content="Jekyll v3.8.5" />
+<meta property="og:title" content="iOS页面传值问题（Objective-C篇）" />
+<meta name="author" content="Leon-Kang" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="#iOS页面传值问题（Objective-C篇）" />
+<meta property="og:description" content="#iOS页面传值问题（Objective-C篇）" />
+<link rel="canonical" href="http://localhost:4000/ios/2016/01/05/%E9%A1%B5%E9%9D%A2%E4%BC%A0%E5%80%BC%E9%97%AE%E9%A2%98OC.html" />
+<meta property="og:url" content="http://localhost:4000/ios/2016/01/05/%E9%A1%B5%E9%9D%A2%E4%BC%A0%E5%80%BC%E9%97%AE%E9%A2%98OC.html" />
+<meta property="og:site_name" content="LK" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2016-01-05T00:00:00+08:00" />
+<script type="application/ld+json">
+{"description":"#iOS页面传值问题（Objective-C篇）","author":{"@type":"Person","name":"Leon-Kang"},"@type":"BlogPosting","url":"http://localhost:4000/ios/2016/01/05/%E9%A1%B5%E9%9D%A2%E4%BC%A0%E5%80%BC%E9%97%AE%E9%A2%98OC.html","headline":"iOS页面传值问题（Objective-C篇）","dateModified":"2016-01-05T00:00:00+08:00","datePublished":"2016-01-05T00:00:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/ios/2016/01/05/%E9%A1%B5%E9%9D%A2%E4%BC%A0%E5%80%BC%E9%97%AE%E9%A2%98OC.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="LK" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">LK</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about.html">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">iOS页面传值问题（Objective-C篇）</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2016-01-05T00:00:00+08:00" itemprop="datePublished">Jan 5, 2016
+      </time>• <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span class="p-author h-card" itemprop="name">Leon-Kang</span></span></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>#iOS页面传值问题（Objective-C篇）</p>
+
+<blockquote>
+  <p>因为自己对这方面还有一些不够熟练。现在总结一下常用的几种方法，方便自己复习和以后使用。</p>
+</blockquote>
+
+<blockquote>
+  <p>在iOS界面搭建中，页面传值是肯定会使用到的。而经常使用的传值方式也无非那么几种。</p>
+</blockquote>
+
+<p>##一、委托方法</p>
+<blockquote>
+  <p>协议方法是一种非常常用的传值方法，只要在协议中声明一个协议方法，然后两个类一个作为委托方一个作为遵守方来调用和实现方法就可以实现传值。十分高效而且针对性很强。</p>
+</blockquote>
+
+<ul>
+  <li>首先创建一个.h头文件，当然也可以直接写在委托方的类文件中，协议内容如下：</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c">@protocol PassValueDelegate &lt;NSObject&gt;
+
+@optional
+
+- (void)passValue:(NSString *)value;
+
+@end</code></pre></figure>
+
+<ul>
+  <li>然后需要思考哪一个类来做遵守协议的一方，在这个例子中，因为第一个类只需要接受值显示在UILabel上就可以，不用去管值的来源，所以我们让其成为遵守协议的一方，而第二个带UITextField的类则作为委托者。</li>
+  <li>这样我们需要先让类二提供一个delegate属性，以指定受委托的对象，然后调用一次passValue：方法把值传出去。</li>
+</ul>
+
+<p>1、声明delegate属性</p>
+
+<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c">@property (nonatomic, strong) id&lt;PassValueDelegate&gt; delegate;</code></pre></figure>
+
+<p>2、调用passValue：方法，这里是在跳转的按钮方法中调用的：</p>
+
+<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c">- (IBAction)buttonAction:(id)sender { 
+    [self.delegate passValue:self.valueTextField.text];
+    [self dismissViewControllerAnimated:YES completion:nil];
+    
+}</code></pre></figure>
+
+<ul>
+  <li>然后是要在第一个接受信息的类中设置遵守协议，然后设置代理者，最后重写协议方法。</li>
+</ul>
+
+<p>1、 遵守协议：</p>
+
+<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c">@interface KLViewController () &lt;PassValueDelegate&gt;
+
+@end</code></pre></figure>
+
+<p>2、设置代理，这里是在跳转的button方法中写的：</p>
+
+<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c">KLAViewController *aViewC = [[KLAViewController alloc] init];
+aViewC.delegate = self;</code></pre></figure>
+
+<p>3、重写协议方法，这里的value参数便是从另一个类中调用该方法时传出的的值，在这里我们把它赋给UILabel：</p>
+
+<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c">- (void)passValue:(NSString *)value
+{
+    self.valueLabel.text = value;
+}</code></pre></figure>
+
+<ul>
+  <li>协议传值无非这么五步，重要的是思考清楚谁作为委托者而谁遵守协议，以防止出现混乱的逻辑或者绕远路的情况发生。</li>
+  <li>最后是，记住几个主要步骤：</li>
+</ul>
+
+<p><img src="http://7xpo5x.com1.z0.glb.clouddn.com/passValue030.png" alt="" /></p>
+
+<p>##二、block方法</p>
+<blockquote>
+  <p>block大家应该都不陌生了，从iOS4.0开始广泛的应用在iOS开发中，是一种C语言的扩充功能，在Objective-C中也得到了很好地支持与运用，在这里我们不对其本身多做赘述。只是运用block来实现界面之间传值功能。</p>
+</blockquote>
+
+<ul>
+  <li>同样的两个类：一个有UITextField控件，一个有UILabel控件。现在实现在第二个界面输入，第一个界面显示。</li>
+  <li>首先在第二个类中声明一个block块，这里利用typedef把block块声明成名叫returnTextBlock的类型：</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+</pre></td><td class="code"><pre>typedef void(^returnTextBlock)(NSString *text);</pre></td></tr></tbody></table></code></pre></figure>
+
+<ul>
+  <li>然后我们还需要给类2声明一个returnTextBlock类型的属性和一个调用returnTextBlock的方法：</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="code"><pre>@property (nonatomic, copy) returnTextBlock returnTextBlock;
+- (void)returnText:(returnTextBlock)textBlock;</pre></td></tr></tbody></table></code></pre></figure>
+
+<ul>
+  <li>实现该方法，并给block属性赋值，这里是在跳转的button方法中给其赋值的：</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="code"><pre>- (void)returnText:(returnTextBlock)textBlock
+{
+    self.returnTextBlock = textBlock;
+}</pre></td></tr></tbody></table></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="code"><pre>- (IBAction)buttonAction:(id)sender {
+    self.returnTextBlock(self.myTextField.text);
+    [self dismissViewControllerAnimated:YES completion:nil];
+}  </pre></td></tr></tbody></table></code></pre></figure>
+
+<ul>
+  <li>在类1中调用block方法以实现传值：</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="code"><pre>- (IBAction)buttonActive:(id)sender {
+    KLAViewController *aViewC = [[KLAViewController alloc] init];
+    // 拿到block传的值
+    [aViewC returnText:^(NSString *text) {
+        self.textLabel.text = text;
+    }];
+    [self presentViewController:aViewC animated:YES completion:nil
+     ];  
+}</pre></td></tr></tbody></table></code></pre></figure>
+
+<ul>
+  <li>在两个页面之间存在一些联系时（例如跳转或者包含），使用block传值是非常方便的，不像协议传值需要重新创建协议也不像通知模式一样使用NSString类型作为识别方法容易出现错误。但是使用block需要一定的熟练度，这里可能说的有些含糊，稍后补上。</li>
+</ul>
+
+<p>##三、使用NSNotificationCenter通知模式</p>
+<blockquote>
+  <p>类似于广播的一种传值模式，十分简单易用。一般负责在两个不同的类之间传值，且耦合度很低。着这种方式中NSNotificationCenter担任一个中介者的身份，已提供观察者与被观察者相互传递信息。</p>
+</blockquote>
+
+<blockquote>
+  <p>Objective-C中使用NSNotifation表示通知，每个NSNotifation对象都具有名称（NSNotificationCenter根据该名称检索此通知的所有观察者）、来源对象（发布该通知的对象）和可选的userInfo字典（来源对象需要告诉观察者的额外信息）。</p>
+</blockquote>
+
+<ul>
+  <li>
+    <p>NSNotificationCenter就相当于一个俱乐部，只要一行代码一个类就能加入其中成为会员，当然这个类要告诉俱乐部它对哪些信息感兴趣，当有新的信息出现时，俱乐部会询问每一位会员这个信息是否是它们所需要的。</p>
+  </li>
+  <li>
+    <p>来看注册通知的代码：</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+</pre></td><td class="code"><pre>[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(printName:) name:@"name" object:nil];</pre></td></tr></tbody></table></code></pre></figure>
+
+<ul>
+  <li>
+    <p>使用此代码便能注册为观察者（会员），Observer：此处对象即为注册者； name:后是要加上此观察者所要观察的信息（此会员感兴趣的内容）（可以为单纯的NSString类型，也可以是系统封装好的名称）；selector:此处一般添加一个SEL选择器以实现当接收到信息时执行某一个方法的动作；最后一个参数object:表示只对哪个发送对象的信息作出响应（只接受某一个对象的信息），设为nil则是接受所有发送者的信息。</p>
+  </li>
+  <li>
+    <p>然后我们在另一个界面的Controller中发送信息：</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="code"><pre>NSString *name = @"Leon-Kang";
+[[NSNotificationCenter defaultCenter] postNotificationName:@"name" object:name];</pre></td></tr></tbody></table></code></pre></figure>
+
+<ul>
+  <li>这行代码便是向NSNotificationCenter发送了一条名为”name”的广播，发送出去的是一个NSString类型的对象name。这样就可以把这个对象发送给需要接受的观察者了。如图所示：</li>
+</ul>
+
+<p><img src="http://7xpo5x.com1.z0.glb.clouddn.com/passValue010.png" alt="" /></p>
+
+<ul>
+  <li>当然这个广播不是指向单一对象的：</li>
+</ul>
+
+<p><img src="http://7xpo5x.com1.z0.glb.clouddn.com/passValue020.png" alt="" /></p>
+
+<ul>
+  <li>但是不要忘记了最重要的一点，每次接受完是要移除观察的，这里是在接收到信息后执行的方法中移除的，如下：</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="code"><pre>- (void)printName:(NSNotification *)notifaction {
+    NSString *name = notifaction.object;
+    NSLog(@"%@", name);
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}</pre></td></tr></tbody></table></code></pre></figure>
+
+<ul>
+  <li>如果不去移除可能会出现一些意料之外的问题，在这个例子中如果没有移除观察者，每次打印出的数据会累加，说明每次切换回来都重新注册了一次观察者，而每个观察者（未移除的与新注册的）都会接收到信息而执行打印方法。</li>
+</ul>
+
+<p>####<a href="https://github.com/Leon-Kang/PassValue">需要代码戳这里</a></p>
+
+
+  </div><a class="u-url" href="/ios/2016/01/05/%E9%A1%B5%E9%9D%A2%E4%BC%A0%E5%80%BC%E9%97%AE%E9%A2%98OC.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">LK</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">LK</li><li><a class="u-email" href="mailto:me@ojbk.dev">me@ojbk.dev</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/Leon-Kang"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">Leon-Kang</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>We must be strong on the way of growth.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
