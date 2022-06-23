@@ -22,10 +22,10 @@ title: Homepage
 # email:
 # description: >- # this means to ignore newlines until "baseurl:"
 
-baseurl: "" # the subpath of your site, e.g. /blog
+baseurl: /blog
 url: https://leonkang.com/
 # twitter_username: jekyllrb
-github_username:  Leon-Kang
+github_username: Leon-Kang
 
 # Build settings
 theme: minima
