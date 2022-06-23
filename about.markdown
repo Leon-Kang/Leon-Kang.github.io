@@ -4,3 +4,6 @@ title: About
 permalink: /about/
 ---
 
+Hello!
+
+This is Leon.
